@@ -1,0 +1,44 @@
+//이분탐색
+#include <algorithm>
+#include <vector>
+
+using namespace std;
+
+int solution(int n, vector<int> cores) {
+    int answer = 0;
+    int size=cores.size();
+    if(n<=size){
+        return n;
+    }
+    int min_v=*min_element(cores.begin(), cores.end());
+    int min_time, max_time;
+    min_time=(n/size)*min_v;//최소/최대 시간
+    max_time=n*min_v;
+    
+    int mid, now, work, cur_work;
+    while(min_time<=max_time){
+        mid=(min_time+max_time)/2;
+        work=size;//0초에 core개수 만큼 할당
+        cur_work=0;
+        for(int i=0;i<size;i++){
+            work+=(mid/cores[i]);//현재시간까지 코어당 처리한 일을 +
+            if(mid%cores[i]==0)//현재시간에 할당된 작업수
+                cur_work++;
+        }
+        if(n>work)//현재 시간 작업량이 부족
+            min_time=mid+1;
+        else if(n<=(work-cur_work))//현재 시간 작업량이 n보다 큼
+            max_time=mid-1;
+        else{//(work-cur_work)<n<=work -> 현재 시간에 작업 종료
+            now=work-cur_work;
+            for(int i=0;i<size;i++){
+                if(mid%cores[i]==0)
+                    now++;
+                if(now==n)
+                    return i+1;
+            }
+        }
+    }
+    
+    //return answer;
+}

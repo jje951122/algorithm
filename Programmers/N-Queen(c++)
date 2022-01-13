@@ -1,0 +1,29 @@
+#include <vector>
+#include <cmath>
+using namespace std;
+int N;
+int arr[13];
+int answer = 0;
+bool check(int now_index) {
+    for (int i = 0; i < now_index; i++) {//현재 값과 이전값들을 비교
+        if ((arr[i] == arr[now_index]) || (abs(arr[i] - arr[now_index]) == now_index - i))//같은열 X, 대각선 X
+            return false;
+    }
+    return true;
+}
+void select_queue(int cnt) {//행마다 위치선정
+    if (cnt == N) {//행위치가 N이면 값++
+        answer++;
+    }
+    for (int i = 0; i < N; i++) {
+        arr[cnt] = i;
+        if (check(cnt)) {//이전값들과 비교
+            select_queue(cnt + 1);
+        }
+    }
+}
+int solution(int n) {
+    N=n;
+    select_queue(0);
+    return answer;
+}

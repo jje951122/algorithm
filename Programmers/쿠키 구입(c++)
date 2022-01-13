@@ -1,0 +1,41 @@
+//구간 합 dp
+#include <string>
+#include <vector>
+
+using namespace std;
+
+int solution(vector<int> cookie) {
+    int answer = -1;
+    int size=cookie.size();
+    
+    int sum[2001];//누적 합
+    sum[0]=cookie[0];
+    int first_son, second_son;
+    for(int i=1;i<size;i++){
+        sum[i]=sum[i-1]+cookie[i];
+    }
+    
+    int half=sum[size-1]/2;//전체의 절반
+    int max=0;
+    for(int first_start=0; first_start<size-1; first_start++){//시작값 : 0~size-1
+        for(int first_end=first_start;first_end<size-1;first_end++){//끝값 : 시작값~(size-1)
+            if(first_start==0)
+                first_son=sum[first_end];
+            else
+                first_son=sum[first_end]-sum[first_start-1];
+            if(first_son>half)
+                break;
+            if(first_son>max){
+                for(int second_end=first_end+1;second_end<size;second_end++){//시작 값 : first 끝값+1, 끝값 : first끝값+1 ~ size
+                    second_son=sum[second_end]-sum[first_end];
+                    if(second_son>first_son) break;
+                    if(second_son==first_son)
+                        max=first_son;
+                }
+            }
+        }
+    }
+    
+    
+    return max;
+}

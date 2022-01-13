@@ -1,0 +1,28 @@
+#투포인터
+def solution(gems):
+    answer = [1,len(gems)]
+    kind_cnt=len(set(gems))
+    dic={gems[0]:1}
+    start=end=0
+    
+    while True:
+        if len(dic)==kind_cnt: #현재바구니에 보석이 종류별로 있음
+            if end-start<answer[1]-answer[0] : #현재 답보다 거리가 가까움
+                answer=[start+1, end+1]
+            #앞을 없애면서 거리 줄이기
+            if dic[gems[start]]==1:
+                del dic[gems[start]]
+            else :
+                dic[gems[start]]-=1
+            start+=1
+        
+        else: #종류별로 없음
+            end+=1
+            if end>=len(gems):break #끝을 넘어가면 break
+            if gems[end] in dic.keys():
+                dic[gems[end]]+=1
+            else :
+                dic[gems[end]]=1
+        
+    
+    return answer

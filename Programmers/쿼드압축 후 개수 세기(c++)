@@ -1,0 +1,41 @@
+// DFS 행렬의 모든 값이 1또는 0일때까지 정사각 행렬로 나눔
+
+#include <string>
+#include <vector>
+
+using namespace std;
+vector<vector<int>> MAP;
+vector<int> answer(2,0);
+void DFS(int y, int x, int size){
+    bool zero=true, one=true;
+    for(int i=y;i<y+size;i++){
+        for(int j=x;j<x+size;j++){
+            if(MAP[i][j]==1)
+                zero=false;
+            if(MAP[i][j]==0)
+                one=false;
+        }
+    }
+    
+    if(zero==true){//모든 행렬의 값이 0
+        answer[0]++;
+        return;
+    }
+    if(one==true){//모든 행렬의 값이 1
+        answer[1]++;
+        return;
+    }
+    //기존 길이/2의 크기를 가진 정사각행렬로 분할
+    DFS(y,x,size/2);
+    DFS(y+size/2, x, size/2);
+    DFS(y, x+size/2, size/2);
+    DFS(y+size/2, x+size/2, size/2);
+}
+
+vector<int> solution(vector<vector<int>> arr) {
+
+    MAP=arr;
+    DFS(0,0,arr.size());
+    
+    return answer;
+}

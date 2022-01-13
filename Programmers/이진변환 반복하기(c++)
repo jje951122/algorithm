@@ -1,0 +1,31 @@
+//string s를 2진수 0은 제거 1의 개수를 2진수하여 다음 s로 갱신 s="1"까지 반복
+// 이진변환 횟수, 제거한 0의 개수 반환
+
+#include <string>
+#include <vector>
+
+using namespace std;
+
+vector<int> solution(string s) {
+    vector<int> answer;
+    answer.resize(2,0);
+
+    int one_count,zero_count;
+    while(s!="1"){
+        one_count=0;zero_count=0;
+        for(int i=0;i<s.length();i++){
+            if(s[i]=='0')
+                zero_count++;//0의 개수
+            else
+                one_count++;//1의 개수
+        }
+        answer[1]+=zero_count;//제거한 0의 갯수 누적
+        s="";
+        while(one_count>0){//1의 갯수를 2진수 변환 순서가 반대지만 연산과정에 갯수만 필요하므로 상관 X
+            s+=to_string(one_count%2);
+            one_count/=2;
+        }
+        answer[0]++;
+    }
+    return answer;
+}

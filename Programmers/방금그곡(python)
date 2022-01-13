@@ -1,0 +1,42 @@
+
+def change(info):
+    info=info.replace("C#","c")
+    info=info.replace("D#","d")
+    info=info.replace("A#","a")
+    info=info.replace("F#","f")
+    info=info.replace("G#","g")
+    return info
+
+def cal_min(info):
+    start=info[0]
+    end=info[1]
+    hour=1*(int(end[:2])-int(start[:2]))
+    min=(int(end[3:])-int(start[3:]))
+    if hour==0:
+        return min
+    else:
+        return hour*60+min
+
+def solution(m, musicinfos):
+    answer = []
+    m=change(m)
+    for idx,info in enumerate(musicinfos):
+        info=change(info)
+        info=info.split(',')
+        time=cal_min(info)
+        
+        if time<=len(info[3]):
+            mel=info[3][:time]
+        else:
+            rot_num=time//len(info[3])
+            now_index=time%len(info[3])
+            mel=rot_num*info[3]+info[3][:now_index]
+        if m in mel:
+            answer.append([idx, time, info[2]])
+            
+    if len(answer)==0:
+        return "(None)"
+    else:
+        answer=sorted(answer, key= lambda x:(-x[1], x[0]))#시간이 내림차순, 순번 오름차순
+        return answer[0][2]
+    

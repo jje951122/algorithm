@@ -1,0 +1,13 @@
+import re
+def solution(files):
+    answer = []
+    tmp=[]
+    for s in files:
+        s=re.split(r'([0-9]+)',s)#숫자를 기준으로 나눔, 나눔 부분을 붙이기 위해 ()
+        tmp.append(s)
+     
+    tmp=sorted(tmp, key=lambda x:(x[0].upper(), int(x[1])))#대소문자 구분을 없애기 위해 대문자 처리 
+    print(tmp)
+    for s in tmp:
+        answer.append("".join(s))
+    return answer

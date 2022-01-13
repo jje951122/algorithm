@@ -1,0 +1,38 @@
+//dfs
+
+#include <string>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+vector<vector<string>> tk;
+vector<string> answer;
+int max_cnt=0;
+void DFS(string now, vector<bool> &visit, vector<string> &list, int cnt){
+    list.push_back(now);
+    
+    //list.size==ticket.size로 하면 가능 경로가 여러개일때 문제 
+    if (cnt>max_cnt) {
+        max_cnt = cnt;
+        answer = list;
+    }
+    
+    for(int i=0;i<tk.size();i++){
+        if(tk[i][0]==now&&!visit[i]){
+            visit[i]=true; 
+            DFS(tk[i][1], visit, list, cnt+1);
+            visit[i]=false; 
+        }
+    }
+    list.pop_back();
+}
+
+vector<string> solution(vector<vector<string>> tickets) {
+    vector<string> list;
+    tk=tickets;
+    sort(tk.begin(), tk.end());// 알파벳순 오름차순
+    vector<bool> visit(tickets.size(), false);
+    DFS("ICN", visit, list, 0);    
+    
+    return answer;
+}

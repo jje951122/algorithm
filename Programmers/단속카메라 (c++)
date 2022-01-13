@@ -1,0 +1,26 @@
+//탐욕법 - 구간을 줄여가며 탐색,  범위 밖이라면 카메라 대수 증가
+
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+bool cmp(vector<int> a, vector<int> b){
+    return a[0]<b[0];
+}
+
+int solution(vector<vector<int>> routes) {
+    int answer = 1;
+    
+    sort(routes.begin(), routes.end(),cmp);
+    int now=routes[0][1];
+    for(int i=0;i<routes.size();i++){//간격을 좁혀감
+        if(now<routes[i][0]){//기준보다 큰 값-> 새로운 카메라
+            answer++;
+            now=routes[i][1];
+        }
+        if(now>routes[i][1])//현재기준이 구간보다 크면 기준 재설정
+            now=routes[i][1];
+    }
+    
+    return answer;
+}

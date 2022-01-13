@@ -1,0 +1,59 @@
+opt_list=['+','-','*']
+
+def cal(a,b,o):
+    if o=='-':
+        return a-b
+    elif o=='*':
+        return a*b
+    else:
+        return a+b
+def make_pri(cnt, visit, priority, temp):
+    if cnt==3:
+        priority.append(temp[:])
+        return
+    for i in range(3):
+        if visit[i]==1:continue
+        visit[i]=1
+        temp.append(opt_list[i])
+        make_pri(cnt+1, visit, priority, temp)
+        temp.pop()
+        visit[i]=0
+
+def solution(expression):
+    answer = 0
+    _num=[]
+    _opt=[]
+    last_idx=0
+    #수식 자르기
+    for i in range(len(expression)):
+        if expression[i] in opt_list:
+            _opt.append(expression[i])
+            _num.append(int(expression[last_idx:i]))
+            last_idx=i+1
+    _num.append(int(expression[last_idx:]))
+    
+    #수식 우선순위 결정
+    visit=[0,0,0]
+    priority=[]
+    make_pri(0, visit, priority, [])
+    
+    
+    for pri in(priority):#우선 순위 종류만큼 반복
+        num=_num[:]
+        opt=_opt[:]
+        
+        for p in(pri):
+            idx=0
+            while idx < len(opt):
+                if p==opt[idx]:
+                    num[idx]=cal(num[idx], num[idx+1], p)
+                    num.pop(idx+1)
+                    opt.pop(idx)
+                    
+                else:
+                    idx+=1
+        
+        if answer<abs(num[0]):
+            answer=abs(num[0])
+
+    return answer

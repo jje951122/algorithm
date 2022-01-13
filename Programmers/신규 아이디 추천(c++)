@@ -1,0 +1,44 @@
+//문자열 처리
+
+#include <string>
+#include <vector>
+
+using namespace std;
+
+string solution(string new_id) {
+    string answer = "";
+    char now;
+    
+    for(int i=0;i<new_id.size();i++){//1~4단계
+        if(new_id[i]>='A'&&new_id[i]<='Z'){
+            new_id[i]+=32;
+        }
+        now=new_id[i];
+        if((now>='a'&&now<='z')||(now>='0'&&now<='9')||now=='_'||now=='.'||now=='-'){
+            if(now=='.'){
+                if(answer.size()==0)continue;//4단계 첫위치 .제거
+                if(answer[answer.size()-1]==now)continue;
+            }
+            answer+=now;
+        }
+    }
+    if(answer[answer.size()-1]=='.'){//4단계 마지막 위치 . 제거
+        answer.erase(answer.size()-1);
+    }
+    
+    if(answer.size()==0){//5단계
+        answer+='a';
+    }
+    
+    if(answer.size()>=16){//6단계
+        answer.erase(15);
+        if(answer[14]=='.')
+            answer.erase(14);
+    }
+    if(answer.size()<=2){//7단계
+        while(answer.size()!=3){
+            answer+=answer[answer.size()-1];
+        }
+    }
+    return answer;
+}

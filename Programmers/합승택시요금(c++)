@@ -1,0 +1,37 @@
+//브루트 포트, 플로이드 와샬
+#include <string>
+#include <vector>
+
+#define INF 987654321
+
+using namespace std;
+
+int solution(int n, int s, int a, int b, vector<vector<int>> fares) {
+    int answer = INF;
+    vector<vector<int>> cost(201,vector<int>(201,INF));
+    
+    for (int i = 1; i <= n; i++) {
+        cost[i][i] = 0;
+    }
+    
+    for(int i=0;i<fares.size();i++){
+            cost[fares[i][0]][fares[i][1]]=fares[i][2];
+            cost[fares[i][1]][fares[i][0]]=fares[i][2];
+    }
+    
+    for(int m=1;m<=n;m++){//플로이드 와샬 거쳐가는 거리계산 최소거리 환산
+        for(int i=1;i<=n;i++){
+            for(int j=1;j<=n;j++){
+                if(cost[i][j]>cost[i][m]+cost[m][j])
+                    cost[i][j]=cost[i][m]+cost[m][j];
+            }
+        }
+    }
+    
+    for(int middle=1;middle<=n;middle++){//브루트 포트 모든 중간점이 대한 최솟값 찾기
+        if(cost[s][middle]==INF||cost[middle][a]==INF||cost[middle][b]==INF) continue;
+        if(answer>cost[s][middle]+cost[middle][a]+cost[middle][b])
+            answer=cost[s][middle]+cost[middle][a]+cost[middle][b];
+    }
+    return answer;
+}

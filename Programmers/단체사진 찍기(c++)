@@ -1,0 +1,43 @@
+// 순열
+// 순열마다 친구간의 거리를 구하고 조건의 거리와 비교  
+#include <string>
+#include <vector>
+#include <algorithm>
+#include <cmath>
+using namespace std;
+bool check(char opt, int num, int diff){
+    if(opt=='>')
+        return diff>num;
+    else if(opt=='<')
+        return diff<num;
+    else
+        return num==diff;
+}
+
+int solution(int n, vector<string> data) {
+    int answer = 0;
+    string friends="ACFJMNRT";
+    char lf, rf, opt;
+    int num, diff; //num->조건의 차이 값, diff-> 실제 차이 값
+    bool flag;
+    do{
+        flag=true;
+        for(int i=0;i<data.size();i++){
+            lf=data[i][0];
+            rf=data[i][2];
+            opt=data[i][3];
+            num=data[i][4]-'0';
+            diff=friends.find(lf)-friends.find(rf);
+            diff=abs(diff)-1;
+            if(!check(opt, num, diff)){
+                flag=false;
+                break;
+            }
+        }
+        if(flag){
+            answer++;
+        }
+    }while(next_permutation(friends.begin(), friends.end()));
+    
+    return answer;
+}

@@ -1,0 +1,33 @@
+//next_permutation -> O(n!) 시간초과
+#include <algorithm>
+#include <vector>
+
+using namespace std;
+long long factorial(int n){
+    if(n==1)
+        return 1;
+    else
+        return n*factorial(n-1);
+}
+
+
+vector<int> solution(int n, long long k) {
+    vector<int> answer;
+    vector<int> number;
+    
+    for (int i = 1; i <= n; i++)number.push_back(i);
+    long long matt, now;
+    while (1) {
+        if (n == 0) break;
+        matt = factorial(n) / n;
+        now = (k-1) / matt;
+        answer.push_back(number[now]);
+        number.erase(number.begin() + now);
+        n--;
+        k %= matt;
+        if (k == 0)
+            k = matt;
+    }
+    
+    return answer;
+}

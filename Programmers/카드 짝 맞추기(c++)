@@ -1,0 +1,142 @@
+//브루트 포트, bfs
+//카드순서 + 순서에 따른 경로까지 
+#include <vector>
+#include <algorithm>
+#include <queue>
+#include <cstring>
+#include <string>
+#include <iostream>
+
+#define INF 987654321
+
+using namespace std;
+
+vector<pair<int, int>> card_info[7];//카드값에 따른 위치
+bool visit[4][4][4][4];
+int y_dir[4] = { 0,1,0,-1 };
+int x_dir[4] = { 1,0,-1,0 };
+int answer = INF;
+int now_y, now_x;
+vector<vector<int>> MAP;
+
+struct pos {
+    int y, x, dis;
+};
+
+bool operator < (pos a, pos b) {
+    return a.dis > b.dis;
+}
+
+bool isrange(int i, int j) {
+    return (i >= 0 && j >= 0 && i < 4&& j < 4);
+}
+
+vector<int> find_card_pos(vector<vector<int>> &board) {//카드 위치 
+    vector<int> card;
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            if (board[i][j] == 0)continue;
+            if (find(card.begin(), card.end(), board[i][j]) == card.end())
+                card.push_back(board[i][j]);
+            card_info[board[i][j]].push_back(make_pair(i, j));
+        }
+    }
+    return card;
+}
+
+int bfs(vector<vector<int>> &arr, pair<int, int> start, pair<int, int> end) {
+    priority_queue<pos> q;
+    q.push(pos{ start.first, start.second, 0 });
+    memset(visit, false, sizeof(visit));
+    //visit[start.first][start.second] = true;
+    
+    int y, x, ny, nx, dis;
+    while (!q.empty()) {
+        y = q.top().y;
+        x = q.top().x;
+        dis = q.top().dis;
+        q.pop();
+        
+        if (y==end.first&&x==end.second) {
+            return dis + 1;
+        }
+        for (int i = 0; i < 4; i++) {
+            ny = y + y_dir[i];
+            nx = x + x_dir[i];
+            if (!isrange(ny, nx))continue;
+            if (visit[y][x][ny][nx]) continue;
+            visit[y][x][ny][nx] = true;
+            q.push(pos{ ny,nx, dis + 1 });//방향키
+
+            while (isrange(ny + y_dir[i], nx + x_dir[i])) {
+                if (arr[ny][nx] != 0) {
+                    break;
+                }
+                ny += y_dir[i]; nx += x_dir[i];
+            }
+            if (visit[y][x][ny][nx])continue;
+            visit[y][x][ny][nx] = true;
+            q.push(pos{ ny,nx,dis + 1 });
+        }
+    }
+}
+
+int cal_dis(vector<pair<int, int>> path) {
+    int dis=0;
+    pair<int, int> p = make_pair(now_y, now_x);
+    pair<int, int> pos1, pos2;
+    vector<vector<int>> arr= MAP;
+    
+    for (int i = 0; i < path.size(); i+=2) {
+        dis += bfs(arr, p, path[i]);
+        dis += bfs(arr, path[i], path[i + 1]);
+        arr[path[i].first][path[i].second] = 0;
+        arr[path[i+1].first][path[i+1].second] = 0;
+        p = path[i + 1];
+    }
+    return dis;
+}
+void decide_path(vector<int> &seq, vector<pair<int, int>> path, int idx) {//카드 순서에 따른 경로처리 
+    if (path.size() == seq.size() * 2) {
+        int dis = cal_dis(path);
+        if (dis < answer)
+            answer = dis;
+        return;
+    }
+    path.push_back(card_info[seq[idx]][0]);
+    path.push_back(card_info[seq[idx]][1]);
+    decide_path(seq, path, idx + 1);
+    path.pop_back(); path.pop_back();
+
+    path.push_back(card_info[seq[idx]][1]);
+    path.push_back(card_info[seq[idx]][0]);
+    decide_path(seq, path, idx + 1);
+    path.pop_back(); path.pop_back();
+}
+
+void decide_seq(vector<bool> visit,vector<int> &card, vector<int> seq,int cnt) {//몇번 카드부터 처리할지
+    if (cnt == card.size()) {
+        vector<pair<int, int>> path;
+        decide_path(seq, path, 0);
+    }
+    for (int i = 0; i < card.size(); i++) {
+        if (visit[i])continue;
+        visit[i] = true;
+        seq.push_back(card[i]);
+        decide_seq(visit, card, seq, cnt + 1);
+        seq.pop_back();
+        visit[i] = false;
+    }
+}
+
+int solution(vector<vector<int>> board, int r, int c) {
+    MAP = board;
+    now_y = r;
+    now_x = c;
+    vector<int> card = find_card_pos(MAP);
+    vector<bool> visit(card.size(),false);
+    vector<int> seq;
+    decide_seq(visit, card, seq, 0);
+    
+    return answer;
+}

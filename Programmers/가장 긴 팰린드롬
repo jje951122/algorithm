@@ -1,0 +1,26 @@
+//
+#include <iostream>
+#include <string.h>
+using namespace std;
+int solution(string s)
+{
+    int answer = 1;
+    int s_len = s.length();
+    int left, right;
+    for (int start = 0; start < s_len-1; start++) {//0~
+        for (int end = s_len-1; (end-start+1) > answer; end--) {start~ end 길이가 answer보다 긴 경우만
+            left = start;
+            right = end;
+            while (s[left] == s[right] && left < right) {
+                left++; right--;
+            }
+            if (left >= right) {
+                if (answer < (end - start + 1)) {
+                    answer = end - start + 1;
+                    break;
+                }
+            }
+        }
+    }
+    return answer;
+}

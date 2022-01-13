@@ -1,0 +1,47 @@
+//순열, 브루트 포트?
+//시계, 반시계 구분 굳이?
+#include <algorithm>
+#include <vector>
+#define INF 987654321
+using namespace std;
+
+int solution(int n, vector<int> weak, vector<int> dist) {
+    int answer = INF;
+    int w_len = weak.size();
+    
+    for (int i = 0; i < w_len-1; i++) {//순환 되게끔 배열 수정
+        weak.push_back(weak[i] + n);
+    }
+    
+    int f_num, cur, fix;
+    do {
+        for (int i = 0; i < w_len; i++) {//시작 위치
+            f_num = 0;
+            fix = 1;
+            cur = dist[f_num] + weak[i];
+
+            for (int j = i + 1; j < weak.size(); j++) {
+                if (fix == w_len) {//다 고침
+                    answer = min(answer, f_num+1);
+                    break;
+                }
+                if (cur >= weak[j]) {//이전 친구가 현재 부분까지 감
+                    fix++;
+                }
+                else {
+                    if (f_num == dist.size() - 1)//남은 친구 X
+                        break;
+                    //다음 순번 사람 출발
+                    f_num++;
+                    cur = weak[j] + dist[f_num];
+                    fix++;
+                }
+            }
+        }
+    } while (next_permutation(dist.begin(), dist.end()));
+    
+    if(answer==INF)
+        answer=-1;
+    
+    return answer;
+}

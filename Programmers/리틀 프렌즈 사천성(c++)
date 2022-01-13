@@ -1,0 +1,88 @@
+//bfs
+#include <algorithm>
+#include <queue>
+#include <vector>
+#include <map>
+#include <cstring>
+
+using namespace std;
+struct pos {
+    int y, x;
+    int degree_cnt = 0;
+    int dir;
+};
+int x_dir[4] = {1,0,-1,0};
+int y_dir[4] = {0,1,0,-1};
+int N, M;
+bool visit[101][101];
+
+bool check(vector<string> &MAP, int s_y, int s_x) {
+    memset(visit, false, sizeof(visit));
+    queue<pos> q;
+    q.push(pos{ s_y, s_x });
+    int y,x,ny, nx, dir, cnt;
+    while (!q.empty()) {
+        y = q.front().y;
+        x = q.front().x;
+        cnt = q.front().degree_cnt;
+        dir = q.front().dir;
+        q.pop();
+
+        if ((y != s_y || x != s_x) && MAP[y][x] == MAP[s_y][s_x]) {
+            MAP[y][x] = '.';
+            MAP[s_y][s_x] = '.';
+            return true;
+        }
+        for (int i = 0; i < 4; i++) {
+            ny = y + y_dir[i];
+            nx = x + x_dir[i];
+            if (ny < 0 || nx < 0 || ny >= N || nx >= M)continue;
+            if (visit[ny][nx])continue;
+            if (MAP[ny][nx] == '.' || MAP[ny][nx] == MAP[s_y][s_x]) {
+                if ((y == s_y && x == s_x) || dir == i) {
+                    q.push(pos{ ny,nx, cnt, i });
+                }
+                else {
+                    if (cnt + 1 > 1)continue;//지금까지 꺽은 수+1이 2번 이상 X
+                    q.push(pos{ ny,nx, cnt+1, i });
+                }
+            }
+        }
+    }
+    return false;
+}
+
+string solution(int m, int n, vector<string> board) {
+    string answer = "";
+    
+    N = m;
+    M = n;
+    vector<pair<char ,pair<int, int>>> start_pos;
+    map<char, bool> alphabet_check;
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < M; j++) {
+            if (board[i][j] >= 'A' && board[i][j] <= 'Z' && !alphabet_check[board[i][j]]) {
+                alphabet_check[board[i][j]] = true;
+                start_pos.push_back(make_pair(board[i][j] ,make_pair(i, j)));
+            }
+        }
+    }
+    sort(start_pos.begin(), start_pos.end());//알파벳순으로 정렬
+  
+    bool flag=true;
+    while (flag) {
+        flag = false;
+        for (int i = 0; i < start_pos.size(); i++) {//알파벳순으로 실행
+            if (check(board, start_pos[i].second.first, start_pos[i].second.second)) {//가능하면 while문 계속 실행, answer, 벡터 갱신
+                flag = true;
+                answer += start_pos[i].first;
+                start_pos.erase(start_pos.begin() + i);
+                break;
+            }
+        }
+    }
+    if (start_pos.size() != 0) {
+        return "IMPOSSIBLE";
+    }
+    return answer;
+}

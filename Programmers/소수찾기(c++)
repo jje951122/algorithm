@@ -1,0 +1,45 @@
+//완전 탐색
+//next_permutation을 이용하여 모든 경우의 수 적용
+//unique()를 사용하여 중복값을 뒤쪽으로 이동, 반환값= 중복값의 시작 위치
+// erase(unique(vector.begin(), vector().end()), vector.end())를 이용하여 중복값 삭제 가능
+
+#include <string>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+bool check(int num){
+    if(num<2)return false;
+    for(int i=2;i*i<=num;i++){
+        if(num%i==0)return false;
+    }
+    return true;
+}
+int solution(string numbers) {
+    int answer = 0;
+    vector<int> v;
+    for(int i=0;i<numbers.length();i++){
+        v.push_back(numbers[i]-'0');
+    }
+    sort(v.begin(), v.end());
+    vector<int> ans;
+    
+    do{
+        for(int i=0;i<v.size();i++){
+            int temp=0;
+            for(int j=0;j<=i;j++){
+               temp=(temp*10)+v[j];
+                ans.push_back(temp);
+            }
+        }
+    }while(next_permutation(v.begin(),v.end()));
+    
+    sort(ans.begin(),ans.end());
+    ans.erase(unique(ans.begin(),ans.end()),ans.end());
+    
+    for(int i=0;i<ans.size();i++){
+        if(check(ans[i]))
+            answer++;
+    }
+    return answer;
+}

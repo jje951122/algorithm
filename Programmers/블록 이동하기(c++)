@@ -1,0 +1,110 @@
+//bfs
+#include <queue>
+#include <vector>
+
+#define MAX 101
+using namespace std;
+
+bool visit[MAX][MAX][4];
+vector<vector<int>> map;
+int x_dir[4] = { 1,0,-1,0 };
+int y_dir[4] = { 0,1,0,-1 };
+int N;
+
+struct pos {
+    int y, x, dir;
+    int time = 0;
+};
+
+bool check_possible(int y1, int x1, int y2, int x2, int y3, int x3) {
+//이동하는 점이 경계밖이거나 벽이면 false
+    if (y3 < 0 || x3 < 0 || y3 >= N || x3 >= N) return false;
+    if (map[y3][x3] == 1)return false;
+    int y, x;
+    //회전 시 지나가는 좌표 계산
+    if (y1 == y2)
+        y = y3;
+    else if (y1 == y3)
+        y = y2;
+    else
+        y = y3;
+
+    if (x1 == x2)
+        x = x3;
+    else if (x1 == x3)
+        x = x2;
+    else
+        x = x3;
+    //지나가는 좌표가 경계밖이거나 벽이면 false
+    if (y < 0 || x < 0 || y >= N || x >= N) return false;
+    if (map[y][x] == 1) return false;
+
+    return true;
+}
+
+int move() {
+    queue<pos> q;
+    q.push(pos{ 0,0,0 });
+    visit[0][0][0] = true;
+    int nx, ny, x, y, tx, ty, ntx, nty, dir, ndir, time;
+    while (!q.empty()) {
+        y = q.front().y;
+        x = q.front().x;
+        dir = q.front().dir;
+        time = q.front().time;
+        q.pop();
+
+        ty = y + y_dir[dir];
+        tx = x + x_dir[dir];
+        if (tx == N - 1 && ty == N - 1) 
+            return time;
+        else if (x == N - 1 && y == N - 1) 
+            return time;
+
+        for (int i = 0; i < 4; i++) {//상하좌우 이동
+            ny = y + y_dir[i];
+            nx = x + x_dir[i];
+            nty = ty + y_dir[i];
+            ntx = tx + x_dir[i];
+            if (ny < 0 || nx < 0 || ny >= N || nx >= N) continue;
+            if (nty < 0 || ntx < 0 || nty >= N || ntx >= N) continue;
+            if (visit[ny][nx][dir])continue;
+            if (map[ny][nx] == 1 || map[nty][ntx] == 1) continue;
+            visit[ny][nx][dir] = true;
+            q.push(pos{ ny,nx,dir,time + 1 });
+        }
+
+        for (int i = 1; i < 4; i += 2) {//y,x기준90도 회전
+            ndir = (dir + i) % 4;
+            nty = y + y_dir[ndir];
+            ntx = x + x_dir[ndir];
+            if (!check_possible(y, x, ty, tx, nty, ntx))continue;
+            if (visit[y][x][ndir])continue;
+            visit[y][x][ndir] = true;
+            q.push(pos{ y,x,ndir,time + 1 });
+        }
+        //y,x 와 ty, tx 교체
+        int tem_x, tem_y;
+        tem_x = tx; tem_y = ty;
+        ty= y ; tx= x ;
+        y = tem_y; x = tem_x;
+        dir = (dir + 2) % 4; 기준이 바꼈으므로 dir반대로 
+        for (int i = 1; i < 4; i += 2) {//새로운기준으로 90도 회전
+            ndir = (dir + i) % 4;
+            nty = y + y_dir[ndir];
+            ntx = x+x_dir[ndir];
+            if (!check_possible(y, x, ty, tx, nty, ntx))continue;
+            if (visit[y][x][ndir])continue;
+            visit[y][x][ndir] = true;
+            q.push(pos{ y,x,ndir,time + 1 });
+        }
+    }
+}
+
+int solution(vector<vector<int>> board) {
+    int answer = 0;
+    map = board;
+    N = board.size();
+    answer = move();
+    return answer;
+}

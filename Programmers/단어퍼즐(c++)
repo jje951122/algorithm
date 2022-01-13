@@ -1,0 +1,35 @@
+// dp
+
+#include <iostream>
+#include <string>
+#include <vector>
+#include <algorithm>
+#define MAX 20000
+using namespace std;
+
+int solution(vector<string> strs, string t)
+{
+    int len = t.size();
+    int dp[20001];//dp[i]는 문자의 처음부터 i까지의 최소 
+    for (int i = 0; i < t.size(); i++) {
+        dp[i] =  MAX;
+    }
+    if (find(strs.begin(), strs.end(), t.substr(0, 1)) != strs.end())
+        dp[0] = 1;
+    for (int i = 1; i < len; i++) {//문자의 끝위치
+        for (int j = 1; j <= 5; j++) {// 현재 비교값의 길이
+            if (i - j < -1)break; //끝위치-길이
+            if (find(strs.begin(), strs.end(), t.substr(i-j+1, j)) != strs.end()) {
+                dp[i] = min(dp[i], dp[i-j]+1);
+                if (i - j + 1 == 0) {//찾은 값이 index = 0이라면 dp[i]=1
+                    dp[i] = 1;
+                    break;
+                }
+            }
+        }
+    }
+    if (dp[len - 1] == MAX)
+        return -1;
+    else
+        return dp[len - 1];
+}
