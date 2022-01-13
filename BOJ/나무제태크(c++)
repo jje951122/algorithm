@@ -1,0 +1,98 @@
+//시뮬레이션
+#include <iostream>
+#include <algorithm>
+#include <vector>
+
+using namespace std;
+
+int N, M, K;
+int add_nutrient[11][11];
+int nutrient[11][11];
+vector<int> map[11][11];
+int x_dir[8] = {1,0,-1,0,1,1,-1,-1};
+int y_dir[8] = {0,1,0,-1,-1,1,-1,1};
+
+void Spring_Summer() {
+    int now_age;
+    for (int i = 1; i <= N; i++) {
+        for (int j = 1; j <= N; j++) {
+            if (map[i][j].size() == 0) continue;
+            sort(map[i][j].begin(), map[i][j].end());
+
+            for (int t = 0; t < map[i][j].size(); t++) {
+                now_age = map[i][j][t];
+                if (nutrient[i][j] < now_age ) {// 여름 : 양분을 못 먹은 나무부터는 전멸-> 양분
+                    for (int d = t; d < map[i][j].size(); d++) {
+                        nutrient[i][j] += map[i][j][d] / 2;
+                    }
+                    map[i][j].erase(map[i][j].begin() + t, map[i][j].end());
+                    break;
+                }
+                map[i][j][t]++;
+                nutrient[i][j] -= now_age;
+            }
+        }
+    }
+}
+
+void Fall() {
+    int ny,nx;
+    for (int i = 1; i <= N; i++) {
+        for (int j = 1; j <= N; j++) {
+            if (map[i][j].size() == 0) continue;
+            for (int t = 0; t < map[i][j].size(); t++) {
+                if (map[i][j][t] % 5 == 0) {
+                    for (int k = 0; k < 8; k++) {
+                        ny = i + y_dir[k];
+                        nx = j + x_dir[k];
+                        if (nx <= 0 || ny <= 0 || nx > N || ny > N) continue;
+                        map[ny][nx].push_back(1);
+                    }
+                }
+            }
+        }
+    }
+}
+
+void Winter() {
+    for (int i = 1; i <= N; i++) {
+        for (int j = 1; j <= N; j++) {
+            nutrient[i][j] += add_nutrient[i][j];
+        }
+    }
+}
+
+int main(void)
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(NULL);
+    
+    cin >> N >>M>> K;
+    for (int i = 1; i <= N; i++) {
+        for (int j = 1; j <= N; j++) {
+            cin >> add_nutrient[i][j];
+            nutrient[i][j] = 5;
+        }
+    }
+
+    int x, y, a;
+    for (int i = 0; i < M; i++) {
+        cin >> x >> y >> a;
+        map[x][y].push_back(a);
+    }
+
+    for (int i = 0; i < K; i++) {
+        Spring_Summer();
+        Fall();
+        Winter();
+    }
+
+    int answer = 0;
+    for (int i = 1; i <= N; i++) {
+        for (int j = 1; j <= N; j++) {
+            answer += map[i][j].size();
+        }
+    }
+    cout << answer;
+    return 0;
+}

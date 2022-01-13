@@ -1,0 +1,45 @@
+//dp
+#include <iostream>
+#include <algorithm>
+using namespace std;
+
+int N;
+int arr[501][501];
+int dp[501][501];
+int dy[] = {0,1,0,-1};
+int dx[] = { 1,0,-1,0 };
+
+int dfs(int i, int j) {
+	if (dp[i][j])return dp[i][j];
+	dp[i][j] = 1;
+
+	for (int d = 0; d < 4; d++) {
+		int ny = i + dy[d];
+		int nx = j + dx[d];
+		if (ny<1 || nx<1 || ny>N || nx>N)continue;
+		if (arr[ny][nx] <= arr[i][j])continue;
+		dp[i][j] = max(dp[i][j], dfs(ny, nx) + 1);
+	}
+	return dp[i][j];
+}
+
+int main() {
+	ios_base::sync_with_stdio(0);
+	cin.tie(NULL);
+
+	cin >> N;
+	for (int i = 1; i <= N; i++) {
+		for (int j = 1; j <= N; j++) {
+			cin >> arr[i][j];
+		}
+	}
+	int ans = 0;
+	for (int i = 1; i <= N; i++) {
+		for (int j = 1; j <= N; j++) {
+			ans = max(ans, dfs(i, j));
+		}
+	}
+  cout<<ans;
+	return 0;
+}
+    

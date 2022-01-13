@@ -1,0 +1,25 @@
+//분할 정복
+#include <iostream>
+
+using namespace std;
+
+int main() {
+	ios_base::sync_with_stdio(0);
+	cin.tie(0);
+
+	long long N;
+	cin >> N;
+	long long cnt = 0;
+	while (N!=1) {//몇단계에 걸쳐서 index=1로 가는지
+		long long cur = 1;
+		while (cur * 2 < N)//이전단계의 어느 위치에 영향을 받는지 
+			cur <<= 1;
+		N -= cur;
+		cnt++;
+	}
+	if (cnt % 2 == 0)
+		cout << 0;
+	else
+		cout << 1;
+	return 0;
+}

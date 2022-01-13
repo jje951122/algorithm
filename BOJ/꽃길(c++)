@@ -1,0 +1,80 @@
+#include <iostream>
+#include <cstring>
+#include <queue>
+#include <fstream>
+
+using namespace std;
+int N;
+int arr[10][10];
+bool visit[10][10];
+
+int y_dir[] = { 0,1,0,-1 };
+int x_dir[] = { 1,0,-1,0 };
+int ans = 987654321;
+
+bool check(int y, int x) {
+    for (int i = 0; i < 4; i++) {
+        if (visit[y + y_dir[i]][x + x_dir[i]])
+            return false;
+    }
+    return true;
+
+}
+
+void cal() {
+    int sum = 0;
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            if (visit[i][j]) {
+                sum += arr[i][j];
+            }
+        }
+    }
+    if (ans > sum)
+        ans = sum;
+}
+
+void select(int y, int x,int cnt) {
+    if (cnt == 3) {
+        cal();
+        return;
+    }
+    if (x == N - 2) {
+        x = 1;
+        y += 1;
+    }
+    else {
+        x += 1;
+    }
+    for (; y < N-1;y++) {
+        for (; x < N-1; x++) {
+            if (visit[y][x]||!check(y,x) )continue;
+            visit[y][x] = true;
+            for (int i = 0; i < 4; i++) 
+                visit[y + y_dir[i]][x + x_dir[i]] = true;
+
+            select(y,x,cnt+1);
+
+            visit[y][x] = false;
+            for (int i = 0; i < 4; i++)
+                visit[y + y_dir[i]][x + x_dir[i]] = false;
+        }
+        x = 1;
+    }
+}
+
+int main(void)
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(NULL);
+    cin >> N ;
+
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            cin >> arr[i][j];
+        }
+    }
+    select(1,0,0);
+    cout << ans;
+    return 0;
+}

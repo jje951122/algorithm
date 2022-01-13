@@ -1,0 +1,104 @@
+//bfs 
+#include <iostream>
+#include <queue>
+#include <vector>
+#include <cstring>
+
+using namespace std;
+
+int N, M;
+int map[1501][1501];
+bool visit[1501][1501];
+int y_dir[] = { 0,1,0,-1 };
+int x_dir[] = { 1,0,-1,0 };
+vector<pair<int, int>> duck_pos;
+queue<pair<int, int>> water_q;
+queue<pair<int, int>> next_q;
+
+void melt_ice() {//얼음이 녹는 시간을 구함
+    int y, x, ny, nx;
+    while (!water_q.empty()) {
+        y = water_q.front().first;
+        x = water_q.front().second;
+        water_q.pop();
+
+        for (int i = 0; i < 4; i++) {
+            ny = y + y_dir[i];
+            nx = x + x_dir[i];
+            if (ny < 0 || nx < 0 || ny >= N || nx >= M)continue;
+            if (map[ny][nx] == -1) {
+                map[ny][nx] = map[y][x] + 1;
+                water_q.push(make_pair(ny, nx));
+            }
+        }
+    }
+   
+}
+
+bool bfs(int time) {
+    queue<pair<int, int>> q = next_q;
+    next_q = queue<pair<int, int>>();
+
+    int y, x, ny, nx;
+    while (!q.empty()) {
+        y = q.front().first;
+        x = q.front().second;
+        q.pop();
+
+        if (y == duck_pos[1].first && x == duck_pos[1].second)
+            return true;
+        for (int i = 0; i < 4; i++) {
+            ny = y + y_dir[i];
+            nx = x + x_dir[i];
+            if (ny < 0 || nx < 0 || ny >= N || nx >= M)continue;
+            if (visit[ny][nx])continue;
+            if (map[ny][nx] <= time) {
+                q.push(make_pair(ny, nx));
+            }
+            else {//현재 시간에서 이동X->다음 순번 Q에 삽입
+                next_q.push(make_pair(ny, nx));
+            }
+            visit[ny][nx] = true;
+        }
+    }
+    return false;
+}
+
+int main(void)
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(NULL);
+
+    cin >> N >> M;
+    char n;
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < M; j++) {
+            cin >> n;
+            
+            if (n == '.' || n == 'L') {
+                if(n == 'L') {
+                    duck_pos.push_back(make_pair(i, j));
+                }
+                visit[i][j] = true;
+                water_q.push(make_pair(i, j));
+                map[i][j] = 0;
+            }
+            else
+                map[i][j] = -1;
+        }
+    }
+    int time = 0;
+    melt_ice();
+    memset(visit, false, sizeof(visit));
+    visit[duck_pos[0].first][duck_pos[0].first] = true;
+    next_q.push(make_pair(duck_pos[0].first, duck_pos[0].second));
+ 
+    while (1) {
+        if (bfs(time)) {
+            cout << time;
+            break;
+        }
+        time++;
+    }
+    return 0;
+}

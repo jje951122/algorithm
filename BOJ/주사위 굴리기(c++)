@@ -1,0 +1,86 @@
+//시뮬레이션
+#include <iostream>
+
+#define MAX 21
+
+using namespace std;
+int N, M, x, y, K;
+int map[MAX][MAX];
+int y_dir[] = { 0,0,0,-1,1 };
+int x_dir[] = { 0,1,-1,0,0 };
+int dice[6] = { 0, };//0:위, 1:뒤, 2:오, 3:왼, 4:앞, 5:아래
+
+void setting() {
+    if (map[y][x] == 0)
+        map[y][x] = dice[5];
+    else {
+        dice[5] = map[y][x];
+        map[y][x] = 0;
+    }
+}
+
+void move(int dir) {
+    int temp;
+    switch (dir) {
+        case 1:{
+            temp = dice[3];
+            dice[3] = dice[5];
+            dice[5] = dice[2];
+            dice[2] = dice[0];
+            dice[0] = temp;
+            break;
+        }
+        case 2: {
+            temp = dice[2];
+            dice[2] = dice[5];
+            dice[5] = dice[3];
+            dice[3] = dice[0];
+            dice[0] = temp;
+            break;
+        }
+        case 3: {
+            temp = dice[4];
+            dice[4] = dice[5];
+            dice[5] = dice[1];
+            dice[1] = dice[0];
+            dice[0] = temp;
+            break;
+        }
+        case 4: {
+            temp = dice[1];
+            dice[1] = dice[5];
+            dice[5] = dice[4];
+            dice[4] = dice[0];
+            dice[0] = temp;
+            break;
+        }
+    }
+}
+
+int main(void)
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(NULL);
+
+    cin >> N >> M >> y >> x >> K;
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < M; j++) {
+            cin >> map[i][j];
+        }
+    }
+    int dir;
+    for (int i = 0; i < K; i++) {
+        cin >> dir;
+        y = y + y_dir[dir];
+        x = x + x_dir[dir];
+        if (y<0 || x<0 || y>=N || x>=M) {
+            y -= y_dir[dir];
+            x -= x_dir[dir];
+            continue;
+        }
+        move(dir);
+        setting();
+        cout << dice[0] << endl; 
+    }
+    return 0;
+}

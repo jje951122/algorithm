@@ -1,0 +1,70 @@
+//브루트포스, 시뮬레이션
+#include <iostream>
+#include <vector>
+#define MAX 51
+
+using namespace std;
+
+struct pos {
+    int y, x;
+};
+vector<pos> chicken_store;//치킨가게의 위치
+vector<pos> house;//집의 위치
+int N, M;
+int MAP[MAX][MAX];
+bool check[13];
+int answer = 12345670;
+
+void chicken_dis(vector<int> chicken_index) {
+    int house_ckicken_dis;
+    int city_chicken_dis = 0;
+    int dis;
+    for (int h = 0; h < house.size(); h++) {//집마다 치킨거리 계산
+        house_ckicken_dis = 12345670;
+        for (int c = 0; c < chicken_index.size(); c++) {
+            dis = abs(house[h].y - chicken_store[chicken_index[c]].y) + abs(house[h].x - chicken_store[chicken_index[c]].x);
+            if (dis < house_ckicken_dis)//집의 치킨거리가 작은쪽 선택
+                house_ckicken_dis = dis;
+        }
+        city_chicken_dis += house_ckicken_dis;//도시 치킨거리에 집 치킨거리를 +
+    }
+    if (answer > city_chicken_dis)
+        answer = city_chicken_dis;
+}
+
+void select_store(int index,  vector<int> chicken_index) {
+    if (M == chicken_index.size()) {
+        chicken_dis(chicken_index);
+        return;
+    }
+    for (int i = index; i < chicken_store.size(); i++) {
+        if (check[i])continue;
+        chicken_index.push_back(i);
+        check[i] = true;
+        select_store(i + 1, chicken_index);
+        check[i] = false;
+        chicken_index.pop_back();
+    }
+}
+
+int main(void)
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(NULL);
+    
+    cin >> N >> M;
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            cin >> MAP[i][j];
+            if (MAP[i][j] == 2)
+                chicken_store.push_back(pos{ i,j });
+            if (MAP[i][j] == 1)
+                house.push_back(pos{ i,j });
+        }
+    }
+    vector<int> v;
+    select_store(0, v);
+    
+    cout << answer;
+    return 0;
+}

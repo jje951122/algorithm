@@ -1,0 +1,156 @@
+//시뮬
+
+#include <fstream>
+#include <iostream>
+#include <cstring>
+#include <vector>
+
+using namespace std;
+
+int N, M;
+int map_2d[50][50];
+vector<int> map_1d;
+int magic_y[] = { 0,-1,1,0,0 };
+int magic_x[] = { 0,0,0,-1,1 };
+int dy[] = {0,1,0,-1};
+int dx[] = { -1,0,1,0 };
+int shark_y, shark_x;
+int score = 0;
+
+void change_1d() {//2차원 배열을 1차원으로
+	int y = shark_y;
+	int x = shark_x;
+	int dir = 0;
+	int cnt = 1;
+	while (1) {
+		for (int i = 0; i < 2; i++) {
+			for (int _ = 0; _ < cnt; _++) {
+				y += dy[dir];
+				x += dx[dir];
+				if (y == 1 && x == 0) {
+					memset(map_2d, 0, sizeof(map_2d));
+					return;
+				}
+				if (map_2d[y][x] == 0)continue;
+				map_1d.push_back(map_2d[y][x]);
+				
+			}
+			dir = (dir + 1) % 4;
+		}
+		cnt += 1;
+	}
+	
+}
+
+void change_2d() {//1차원을 2
+	int y = shark_y;
+	int x = shark_x;
+	int dir = 0;
+	int cnt = 1;
+	int idx = 0;
+	if (map_1d.size() == 0)
+		return;
+	while (1) {
+		for (int i = 0; i < 2; i++) {
+			for (int _ = 0; _ < cnt; _++) {
+				y += dy[dir];
+				x += dx[dir];
+				map_2d[y][x] = map_1d[idx++];
+				if (idx == map_1d.size() || (y == 1 && x == 1)) {
+					map_1d.clear();
+					return;
+				}
+			}
+			dir = (dir + 1) % 4;
+		}
+		cnt += 1;
+	}
+	
+}
+
+void blizzard(int d, int s) {
+	int y = shark_y;
+	int x = shark_x;
+	for (int i = 0; i < s; i++) {
+		y += magic_y[d];
+		x += magic_x[d];
+		map_2d[y][x] = 0;
+	}
+	change_1d();
+}
+
+bool bomb() {//4개이상 연속된 블록 터트리기, 터트리고 처음부터 X
+	bool flag = false;
+	for (auto iter = map_1d.begin(); iter != map_1d.end(); iter++) {
+		auto _iter = iter + 1;
+		int cnt = 1;
+		if (_iter == map_1d.end())
+			break;
+		while ((_iter != map_1d.end()) && (*_iter == *iter)) {
+			_iter++;
+			cnt++;
+		}
+		if (cnt>=4) {
+			score += (*iter) * cnt;
+			iter=map_1d.erase(iter, _iter);
+			if (map_1d.size() == 0) {
+				return false;
+			}
+			if(iter!=map_1d.begin())
+				iter--;
+			flag = true;
+		}
+		else {
+			iter = _iter - 1;
+		}
+	}
+	if (flag)
+		return true;
+	else
+		return false;
+}
+
+void make_new_map() {
+	vector<int> new_map;
+	for (auto iter = map_1d.begin(); iter != map_1d.end(); iter++) {
+		auto _iter = iter + 1;
+		int cnt = 1;
+		while ((_iter!=map_1d.end()) && (* _iter == *iter) ) {
+			_iter++;
+			cnt++;
+		}
+		new_map.push_back(cnt);
+		new_map.push_back(*iter);
+		if (new_map.size() >= N * N)break;
+		if (_iter == map_1d.end())
+			break;
+		iter = _iter - 1;
+	}
+	map_1d = new_map;
+	change_2d();
+}
+
+int main() {
+	ios_base::sync_with_stdio(0);
+	cin.tie(NULL);
+
+	cin >> N >> M;
+	shark_y = shark_x = (N + 1) / 2;
+	for (int i = 1; i <= N; i++) {
+		for (int j = 1; j <= N; j++) {
+			cin >> map_2d[i][j];
+		}
+	}
+
+	for (int i = 0; i < M; i++) {
+		int d, s;
+		cin >> d >> s;
+		blizzard(d, s);
+		while (bomb());
+		make_new_map();
+	}
+	cout << score;
+
+	return 0;
+}
+    

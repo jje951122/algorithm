@@ -1,0 +1,181 @@
+#include <iostream>
+#include <cstring>
+#include <vector>
+#include <algorithm>
+#include <queue>
+
+#define RAINBOW 0
+#define EMPTY -2
+#define BLACK -1
+using namespace std;
+
+int N, M;
+
+bool visit[21][21];
+int dy[] = { 0,1,0,-1 };
+int dx[] = { 1,0,-1,0 };
+int score = 0;
+int map[21][21];
+struct BLOCK{
+	vector<pair<int, int>> pos;
+	int rainbow_cnt = 0;
+};
+
+
+bool cmp(pair<int, int> a, pair<int, int> b) {//기준 블록을 정하기
+	if (a.first <= b.first) {//행이 작은거
+		if (a.first == b.first) {//행번호가 같으면 열이 작은것
+			if (a.second < b.second)
+				return true;
+			return false;
+		}
+		return true;
+	}
+	return false;
+	
+}
+
+void rotate() {
+	int copy[21][21];
+
+	for (int i = 1; i <= N; i++) {
+		for (int j = 1; j <= N; j++) {
+			copy[N - j + 1][i] = map[i][j];
+		}
+	}
+
+	for (int i = 1; i <= N; i++) {
+		for (int j = 1; j <= N; j++) {
+			map[i][j] = copy[i][j];
+		}
+	}
+}
+
+void downing() {
+	for (int i = N-1; i >=1; i--) {
+		for (int j = 1; j <= N; j++) {
+			if (map[i][j] == BLACK || map[i][j] == EMPTY)continue;
+			int next_i = i;
+			while (next_i+1 <= N && map[next_i+1][j] == EMPTY) {
+				next_i++;
+			}
+			if (next_i != i) {
+				map[next_i][j] = map[i][j];
+				map[i][j] = EMPTY;
+			}
+		}
+	}
+}
+
+BLOCK bfs(int i, int j) {
+	vector<pair<int, int>> v;
+	vector<pair<int, int>> rainbow_pos;
+	int cnt = 0;
+	int value = map[i][j];
+
+	visit[i][j] = true;
+	queue<pair<int, int>> q;
+	q.push(make_pair(i, j));
+
+	int y, x, ny, nx;
+	while (!q.empty()) {
+		y=q.front().first;
+		x = q.front().second;
+		if (map[y][x] == RAINBOW) {//무지개는 공통 재료-> 탐색후 무지개 위치는 visit->false
+			rainbow_pos.push_back(q.front());
+			cnt++;//무지개 블록의 개수
+		}
+		else {
+			v.push_back(q.front());//일반 블록의 갯수
+		}
+		q.pop();
+
+		for (int d = 0; d < 4; d++) {
+			ny = y + dy[d];
+			nx = x + dx[d];
+			if (ny<1 || nx<1 || ny>N || nx>N)continue;
+			if (visit[ny][nx])continue;
+			if (map[ny][nx] == value || map[ny][nx] == RAINBOW) {
+				
+				visit[ny][nx] = true;
+				q.push(make_pair(ny, nx));
+			}
+		}
+	}
+	for (int i = 0; i < rainbow_pos.size(); i++) {
+		visit[rainbow_pos[i].first][rainbow_pos[i].second] = false;
+	}
+	sort(v.begin(), v.end(), cmp);//기준 블록을 찾기위한 정렬
+	v.insert(v.end(), rainbow_pos.begin(), rainbow_pos.end());
+	return BLOCK{v, cnt};
+}
+
+
+
+bool delete_block() {
+	memset(visit, false, sizeof(visit));
+	BLOCK target;
+	for (int i = 1; i <= N; i++) {
+		for (int j = 1; j <= N; j++) {
+			if (visit[i][j] || map[i][j] <=RAINBOW)continue;
+			BLOCK now = bfs(i, j);
+			if (target.pos.size() < now.pos.size()) {//블록의 개수가 큰것
+				target = now;
+			}
+			else if(target.pos.size() == now.pos.size()){
+				if (target.rainbow_cnt < now.rainbow_cnt) {//블록의 개수가 같으면 무지개 개수가 큰것
+					target = now;
+				}
+				else if (target.rainbow_cnt == now.rainbow_cnt) {
+					if (now.pos[0].first >= target.pos[0].first) {//무지개 개수까지 같으면 행이 큰것
+						if (now.pos[0].first == target.pos[0].first) {
+							if (now.pos[0].second > target.pos[0].second) {//행까지 같으면 열
+								target = now;
+							}
+						}
+						else {
+							target = now;
+						}
+					}
+						
+				}
+			}
+
+		}
+	}
+	
+	vector<pair<int, int>> v = target.pos;
+	if (v.size() >= 2) {
+		for (int i = 0; i < v.size(); i++) {
+			map[v[i].first][v[i].second] = EMPTY;
+		}
+		score += v.size() * v.size();
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+int main() {
+	ios_base::sync_with_stdio(0);
+	cin.tie(NULL);
+
+	cin >> N >> M;
+	for (int i = 1; i <= N; i++) {
+		for (int j = 1; j <= N; j++) {
+			cin >> map[i][j];
+		}
+	}
+	while (1) {
+		if (!delete_block())
+			break;
+		downing();
+		rotate();
+		downing();
+	}
+	cout << score;
+
+	return 0;
+}
+    

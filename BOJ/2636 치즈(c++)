@@ -1,0 +1,93 @@
+//bfs
+#include <iostream>
+#include <queue>
+#include <vector>
+
+using namespace std;
+
+int N, M;
+int arr[101][101];
+vector<pair<int, int>> cheese;
+vector<vector<bool>> outer_air(101, vector<bool>(101, false));
+vector<vector<bool>> visit(101, vector<bool>(101, false));
+int x_dir[4] = {1,0,-1,0};
+int y_dir[4] = {0,1,0,-1};
+
+void divide_outer_air() {//외부 공기 구하기
+    visit.assign(101, vector<bool>(101, false));
+    outer_air.assign(101, vector<bool>(101, false));
+    queue<pair<int, int>>q;
+    q.push(make_pair(0, 0));
+    visit[0][0] = true;
+    outer_air[0][0] = true;
+    int next_x, next_y, now_x, now_y;
+
+    while (!q.empty()) {
+        now_y = q.front().first;
+        now_x = q.front().second;
+        q.pop();
+
+        for (int i = 0; i < 4; i++) {
+            next_y = now_y + y_dir[i];
+            next_x = now_x + x_dir[i];
+            if (next_x < 0 || next_y < 0 || next_x >= M || next_y >= N)continue;
+            if (visit[next_y][next_x])continue;
+            if (arr[next_y][next_x] == 0) {
+                outer_air[next_y][next_x] = true;
+                visit[next_y][next_x] = true;
+                q.push(make_pair(next_y, next_x));
+            }
+        }
+    }
+}
+
+void melt_cheese() {
+    vector<pair<int, int>> new_cheese;
+    int now_x, now_y, next_x, next_y;
+    bool flag;
+    for (int i = 0; i < cheese.size(); i++) {//기존 치즈 
+        now_y = cheese[i].first;
+        now_x = cheese[i].second;
+        flag = true;
+        for (int i = 0; i < 4; i++) {
+            next_y = now_y + y_dir[i];
+            next_x = now_x + x_dir[i];
+            if (outer_air[next_y][next_x]) {//하나라도 외부공기에 맞닿으면 arr[][]=0 아니면 새로운 벡터에 추가
+                flag = false;
+                break;
+            }
+        }
+        if (flag)
+            new_cheese.push_back(make_pair(now_y, now_x));
+        else
+            arr[now_y][now_x] = 0;
+    }
+    cheese = new_cheese;
+}
+int main(void)
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(NULL);
+
+    int time = 0;
+    int final_size = 0;
+    cin >> N >> M;
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < M; j++) {
+            cin >> arr[i][j];
+            if (arr[i][j] == 1)
+                cheese.push_back(make_pair(i, j));
+        }
+    }
+    
+    while (1) {
+        if (cheese.size()==0) break;
+        divide_outer_air();
+        final_size = cheese.size();
+        melt_cheese();
+        time++;
+    }
+
+    cout << time << endl << final_size;
+    return 0;
+}

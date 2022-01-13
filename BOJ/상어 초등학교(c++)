@@ -1,0 +1,117 @@
+#include <iostream>
+#include <cmath>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+int N;
+int map[21][21];
+int each_like[4000][4];
+int dy[] = {0,1,0,-1};
+int dx[] = { 1,0,-1,0 };
+
+struct pos {
+	int y, x, like, empty;
+};
+
+bool isrange(int i, int j) {
+	if (i<1 || j<1 || i>N || j>N)return false;
+	return true;
+}
+
+bool cmp(pos a, pos b) {//조건 1,2,3 정렬을 위한 비교
+	if (a.like >= b.like) {
+		if (a.like == b.like) {
+			if (a.empty >= b.empty) {
+				if (a.empty == b.empty) {
+					if (a.y <= b.y) {
+						if (a.y == b.y) {
+							if (a.x < b.x) {
+								return true;
+							}
+							return false;
+						}
+						return true;
+					}
+					return false;
+				}
+				return true;
+			}
+			return false;
+		}
+		return true;
+	}
+	return false;
+}
+
+pair<int, int> search(int now, int i, int j) {
+	pair<int, int> res;
+	int empty = 0;
+	int like = 0;
+	
+	for (int d = 0; d < 4; d++) {
+		int ny = i + dy[d];
+		int nx = j + dx[d];
+		if (!isrange(ny,nx))continue;
+		if (map[ny][nx] == 0)empty++;
+		else {
+			for (int l = 0; l < 4; l++) {
+				if (map[ny][nx] == each_like[now][l]) {
+					like++;
+					break;
+				}
+			}
+		}
+	}
+	return make_pair(like, empty);
+}
+
+void select(int now) {
+	int max_empty = 0;
+	int max_like = 0;
+	int now_i=0, now_j=0;
+	vector<pos> p;
+	for (int i = 1; i <= N; i++) {
+		for (int j = 1; j <= N; j++) {
+			if (map[i][j] != 0)continue;
+			pair<int, int> res = search(now, i,j);//자리별 좋아하는 학생수, 빈자리수
+			p.push_back(pos{ i,j,res.first, res.second });
+		}
+	}
+	sort(p.begin(), p.end(), cmp);
+	map[p[0].y][p[0].x] = now;
+}
+
+int score() {
+	int res = 0;
+	for (int i = 1; i <= N; i++) {
+		for (int j = 1; j <= N; j++) {
+			int now = map[i][j];
+			int add = search(now, i, j).first;
+			if (add == 0)continue;
+			else {
+				res += pow(10, add - 1);
+			}
+		}
+	}
+	return res;
+}
+
+int main() {
+	ios_base::sync_with_stdio(0);
+	cin.tie(NULL);
+	
+	cin >> N;
+	for (int i = 1; i <= N * N; i++) {
+		int now;
+		cin >> now;
+		for (int j = 0; j < 4; j++)
+			cin >> each_like[now][j];
+		select(now);
+	}
+
+	cout << score();
+	return 0;
+}
+    

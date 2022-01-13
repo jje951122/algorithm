@@ -1,0 +1,129 @@
+//bfs, 브루트포스
+#include <iostream>
+#include <queue>
+#include <vector>
+#include <cstring>
+
+
+using namespace std;
+int answer = 987654321;
+int N;
+int arr[21][21];
+bool visit[21][21];
+int x_dir[4] = { 1,0,-1,0 };
+int y_dir[4] = { 0,1,0,-1 };
+vector<pair<int, int>> p(4);
+vector<vector<int>> MAP;
+
+void bfs(int value, int s_i, int e_i, int s_j, int e_j, int yy, int xx) {
+    queue<pair<int, int>> q;
+    memset(visit, false, sizeof(visit));
+    visit[yy][xx] = true;
+    q.push(make_pair(yy, xx));
+    MAP[yy][xx] = value;
+
+    int ny, nx, y, x;
+    while (!q.empty()) {
+        y = q.front().first;
+        x = q.front().second;
+        q.pop();
+
+        for (int i = 0; i < 4; i++) {
+            ny = y + y_dir[i];
+            nx = x+x_dir[i];
+            if (ny<s_i || ny>e_i || nx<s_j || nx>e_j)continue;
+            if (!visit[ny][nx] && MAP[ny][nx] == 0) {
+                MAP[ny][nx] = value;
+                q.push(make_pair(ny, nx));
+                visit[ny][nx] = true;
+            }
+        }
+    }
+}
+void cal() {
+    int sum[6] = { 0, };
+    for (int i = 1; i <= N; i++) {
+        for (int j = 1; j <= N; j++) {
+            sum[MAP[i][j]] += arr[i][j];
+        }
+    }
+    sum[5] += sum[0]; 
+
+    int max = 0, min = 987654321;
+    for (int i = 1; i <= 5; i++) {
+        if (sum[i] < min)
+            min = sum[i];
+        if (sum[i] > max)
+            max = sum[i];
+    }
+    if (max - min < answer)
+        answer = max - min;
+}
+void assign_area() {
+    MAP.assign(N + 1, vector<int>(N + 1, 0));
+
+    //5 테두리 할당, 나머지 값들은 bfs처리 내부할당 필요X
+    int i, j;
+    i = p[0].first; j = p[0].second;
+    while (i >= p[1].first && j <= p[1].second) {
+        MAP[i][j] = 5;
+        i--; j++;
+    }
+    i = p[0].first; j = p[0].second;
+    while (i<=p[2].first&&j<=p[2].second) {
+        MAP[i][j] = 5;
+        i++; j++;
+    }
+    i = p[1].first; j = p[1].second;
+    while (i <= p[3].first && j <= p[3].second) {
+        MAP[i][j] = 5;
+        i++; j++;
+    }
+    i = p[2].first; j = p[2].second;
+    while (i >= p[3].first && j <= p[3].second) {
+        MAP[i][j] = 5;
+        i--; j++;
+    }
+    
+    bfs(1, 1, p[0].first-1, 1, p[1].second, 1, 1);
+    bfs(2, 1,p[3].first, p[1].second+1 , N, 1, N);
+    bfs(3, p[0].first, N, 1, p[2].second-1, N, 1);
+    bfs(4, p[3].first-1, N , p[2].second, N, N, N);
+   
+    cal();
+}
+
+void divide_area() {
+    for (int y = 1; y <= N; y++) {
+        for (int x = 1; x <= N; x++) {
+            for (int d1 = 1; d1 <= y; d1++) {
+                for (int d2 = 1; d2 <= N-y; d2++) {
+                    if (x + d1 + d2 > N)continue;
+                    p[0].first = y; p[0].second = x;
+                    p[1].first = y - d1; p[1].second = x + d1;
+                    p[2].first = y + d2; p[2].second = x + d2;
+                    p[3].first = y - d1 + d2; p[3].second = x + d1 + d2;
+                    assign_area();
+                    
+                }
+            }
+        }
+    }
+}
+
+int main(void)
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(NULL);
+    
+    cin >> N;
+    for (int i = 1; i <= N; i++) {
+        for (int j = 1; j <= N; j++) {
+            cin >> arr[i][j];
+        }
+    }
+    divide_area();
+    cout << answer;
+    
+    return 0;
+}

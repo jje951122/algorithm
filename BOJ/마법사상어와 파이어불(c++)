@@ -1,0 +1,101 @@
+//시뮬레이션
+
+#include <iostream>
+#include <vector>
+using namespace std;
+struct fireball_info {
+    int y, x, m, s, d;
+};
+int N, M, K;
+vector<fireball_info> map[52][52];
+vector<fireball_info> fireball;
+int y_dir[8] = {-1,-1,0,1,1,1,0,-1};
+int x_dir[8] = {0,1,1,1,0,-1,-1,-1};
+
+int isoutrange(int pos) {//처음과 끝이 이어져있으므로 구역 밖의 값 -> 재설정
+    if (pos <= 0)
+        return N + pos;
+    else if (pos > N)
+        return pos - N;
+    else
+        return pos;
+}
+
+void move_fireball() {
+    int  y, x;
+    for (int i = 1; i <= N; i++) {
+        for (int j = 1; j <= N; j++) {
+            map[i][j].clear();
+        }
+    }
+    int move;
+    for (int i = 0; i < fireball.size(); i++) {//fireball 벡터로 map 갱신
+        y = fireball[i].y;
+        x = fireball[i].x;
+        move = fireball[i].s % N;
+        y = isoutrange(y + y_dir[fireball[i].d] * move);
+        x = isoutrange(x + x_dir[fireball[i].d] * move);
+        fireball[i].y = y;
+        fireball[i].x = x;
+        map[y][x].push_back(fireball[i]);
+    }
+    
+}
+
+void combine_fireball() {
+    fireball.clear();
+    int new_d = 0, new_m = 0, new_s = 0;
+    bool flag;
+    for (int i = 1; i <= N; i++) {//map으로 fireball벡터 갱신
+        for (int j = 1; j <= N; j++) {
+            if (map[i][j].size() == 1) {
+                fireball.push_back(map[i][j][0]);
+            }
+            else if (map[i][j].size() > 1) {//겹치는 파이어볼 존재
+                new_d = 0, new_m = 0, new_s = 0;
+                flag = true;
+                for (int k = 0; k < map[i][j].size(); k++) {//새로운 질량, 속도, 방향 값 결정
+                    new_m += map[i][j][k].m;
+                    new_s += map[i][j][k].s;
+                    if (k == map[i][j].size() - 1) break;
+                    if (map[i][j][k].d % 2 != map[i][j][k + 1].d % 2) {//이전값이 현재값과 다르면 전부다 짝수나 홀수 X
+                        flag = false;
+                    }
+                }   
+                new_m /= 5;
+                new_s /= map[i][j].size();
+                new_d = flag? 0 : 1;
+                if (new_m > 0) {//새로운 질량이 0이면 pass
+                    for (new_d; new_d < 8; new_d += 2) {
+                        fireball.push_back(fireball_info{i,j,new_m, new_s, new_d});
+                    }
+                }
+            }
+        }
+    }
+}
+
+int main(void)
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(NULL);
+
+    cin >> N >> M >> K;
+    int y, x, m, s, d;
+    for (int i = 0; i < M; i++) {
+        cin >> y >> x >> m >> s >> d;
+        fireball.push_back(fireball_info{ y,x, m,s,d });
+    }
+    int time = 0;
+    while (time < K) {
+        move_fireball();
+        combine_fireball();
+        time++;
+    }
+    int sum = 0;
+    for (int i = 0; i < fireball.size(); i++) {
+        sum += fireball[i].m;
+    }
+    cout << sum;
+    return 0;
+}

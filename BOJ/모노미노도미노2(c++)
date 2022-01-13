@@ -1,0 +1,145 @@
+//시뮬레이션
+
+#include <iostream>
+
+#define R 10
+#define C 4
+using namespace std;
+
+int N;
+int arr[2][R][C];
+int block_idx = 1;
+int score = 0;
+
+void block_setting(int y, int x, int type) {
+    int ny, nx;
+    if (type == 1) {//.
+        ny = x; nx = y;
+        while (ny+1 < R && arr[0][ny+1][nx] == 0) {
+            ny++;
+        }
+        arr[0][ny][nx] = block_idx;
+
+        ny = y; nx = x;
+        while (ny + 1 < R && arr[1][ny+1][nx] == 0) {
+            ny++;
+        }
+        arr[1][ny][nx] = block_idx;
+    }
+    else if (type == 2) {//-
+        ny = x; nx = y;
+        while (ny + 2 < R && arr[0][ny+1][nx] == 0&& arr[0][ny+2][nx]==0 ) {
+            ny++;
+        }
+        arr[0][ny][nx] = block_idx;
+        arr[0][ny + 1][nx] = block_idx;
+
+        ny = y; nx = x;
+        while (ny + 1 < R && arr[1][ny+1][nx] == 0 && arr[1][ny+1][nx+1]==0) {
+            ny++;
+        }
+        arr[1][ny][nx] = block_idx;
+        arr[1][ny][nx+1] = block_idx;
+    }
+    else {//|
+        ny = x; nx = y;
+        while (ny + 1 < R && arr[0][ny+1][nx] == 0 && arr[0][ny+1][nx + 1]==0) {
+            ny++;
+        }
+        arr[0][ny][nx] = block_idx;
+        arr[0][ny][nx + 1] = block_idx;
+
+        ny = y; nx = x;
+        while (ny + 2 < R && arr[1][ny+1][nx] == 0 && arr[1][ny + 2][nx]==0) {
+            ny++;
+        }
+        arr[1][ny][nx] = block_idx;
+        arr[1][ny + 1][nx] = block_idx;
+    }
+    block_idx++;
+}
+
+void remove_block(int block, int y) {//y행 삭제, 4~y행 이동
+    for (int j = 0; j < C; j++) {
+        arr[block][y][j] = 0;
+    }
+    for (int i = y; i > 3; i--) {
+        for (int j = 0; j < C; j++) {
+            arr[block][i][j] = arr[block][i - 1][j];
+            arr[block][i - 1][j] = 0;
+        }
+    }
+}
+
+void cal_score() {
+    bool flag;
+    for (int block = 0; block < 2; block++) {
+        for (int i = 6; i < R; i++) {
+            flag = true;
+            for (int j = 0; j < C; j++) {
+                if (arr[block][i][j] == 0) {
+                    flag = false;
+                    break;
+                }
+            }
+            if (flag) {
+                remove_block(block, i);//행이 전부 차면 삭제, 이동
+                score++;
+            }
+        }
+    }
+}
+
+void check_special() {
+    int cnt;
+    for (int block = 0; block < 2; block++) {
+        cnt = 0;
+        for (int i = 4; i < 6; i++) {
+            for (int j = 0; j < C; j++) {
+                if (arr[block][i][j] != 0) {
+                    cnt++;//값이 있는 행 
+                    break;
+                }
+            }
+        }
+        for (int k = 0; k < cnt; k++) {//값이 있는 행만큼 삭제, 이동
+            remove_block(block, 9);
+        }
+    }
+}
+
+int count_block() {
+    int cnt = 0;
+
+    for (int block = 0; block < 2; block++) {
+        for (int i = 6; i < R; i++) {
+            for (int j = 0; j < C; j++) {
+                if (arr[block][i][j] != 0) {
+                    cnt++;
+                }
+            }
+        }
+    }
+    return cnt;
+}
+
+int main(void)
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(NULL);
+
+    cin >> N;
+    int y, x, type;
+    for (int i = 0; i < N; i++) {
+        cin >> type >> y >> x;
+        block_setting(y, x, type);
+        cal_score();
+        check_special();
+    }
+    
+    int count=count_block();
+
+    cout << score<<endl;
+    cout << count;
+    return 0;
+}

@@ -1,0 +1,45 @@
+//dfs, 그리디?  위에서 아래 순으로 dfs처리해야함
+#include <iostream>
+
+using namespace std;
+
+int N,M;
+char arr[10001][501];
+bool visit[10001][501];
+int x_dir[] = {1,1,1};
+int y_dir[] = {-1,0,1};
+int ans = 0;
+
+bool DFS(int y,int x) {
+    visit[y][x] = true;
+    if (x == M) {
+        ans++;
+        return true;
+    }
+    int ny, nx;
+    for (int i = 0; i < 3; i++) {
+        ny = y + y_dir[i];
+        nx = x + x_dir[i];
+        if (ny<1 || ny>N ||visit[ny][nx] ||arr[ny][nx]=='x') continue;
+        if (DFS(ny, nx))
+            return true;
+    }
+    return false;
+}
+int main(void)
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(NULL);
+    
+    cin >>N>>M;
+    for (int i = 1; i <= N; i++) {
+        for (int j = 1; j <= M; j++) {
+            cin >> arr[i][j];
+        }
+    }
+    for (int i = 1; i <= N; i++) {
+        DFS(i, 1);
+    }
+    cout << ans;
+    return 0;
+}

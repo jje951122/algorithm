@@ -1,0 +1,76 @@
+//구현
+
+#include <iostream>
+#include <cmath>
+using namespace std;
+
+int N, L;
+
+int make_road(int map[][101]) {
+    int road_cnt = 0;
+    int cnt;
+    bool flag;
+    for (int i = 1; i <= N; i++) {
+        flag = true;
+        cnt = 1;
+        for (int j = 1; j < N; j++) {
+            if (abs(map[i][j] - map[i][j + 1]) > 1) {
+                flag = false;
+                break;
+            }
+            else if (map[i][j] == map[i][j + 1])
+                cnt++;
+            else if (map[i][j] == map[i][j+1] + 1) {// 앞 높음
+                int nx = j + 1;
+                while (nx < N && map[i][nx] == map[i][nx + 1]) {
+                    nx++;
+                }
+                cnt = nx - j;
+                if (cnt  >= L) {
+                    j = nx-1;
+                    cnt = cnt - L;
+                    
+                }
+                else {
+                    flag = false;
+                    break;
+                }
+            }
+            else if (map[i][j] + 1 == map[i][j+1]) {// 뒤가 높음
+                if (cnt >= L) {
+                    cnt = 1;
+                }
+                else {
+                    flag = false;
+                    break;
+                }
+            }
+        }
+        if (flag)
+            road_cnt++;
+    }
+    return road_cnt;
+}
+
+int main(void)
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(NULL);
+
+    int map1[101][101];
+    int map2[101][101];
+    cin >> N >> L;
+    for (int i = 1; i <= N; i++) {
+        for (int j = 1; j <= N; j++) {
+            cin >> map1[i][j];
+            map2[j][i] = map1[i][j];
+        }
+    }
+    
+
+    int answer = 0;
+    answer += make_road(map1);
+    answer += make_road(map2);
+    cout << answer;
+    return 0;
+}

@@ -1,0 +1,259 @@
+//시뮬레이션
+#include <iostream>
+
+using namespace std;
+
+int N;
+char board[6][3][3] = {
+    {{'w','w','w'},{'w','w','w'},{'w','w','w'}},//위
+    {{'y','y','y'},{'y','y','y'},{'y','y','y'}},//아래
+    {{'r','r','r'},{'r','r','r'},{'r','r','r'}},//앞
+    {{'o','o','o'},{'o','o','o'},{'o','o','o'}},//뒤
+    {{'g','g','g'},{'g','g','g'},{'g','g','g'}},//왼
+    {{'b','b','b'},{'b','b','b'},{'b','b','b'}}//오
+};
+char arr[6][3][3];
+char area_arr[3][3];
+
+void print_top() {
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            cout << arr[0][i][j];
+        }
+        cout << endl;
+    }
+}
+
+void clock_wise(int num) {
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            area_arr[j][2-i] = arr[num][i][j];
+        }
+    }
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            arr[num][i][j]=area_arr[i][j];
+        }
+    }
+}
+
+void re_clock_wise(int num) {
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            area_arr[2-j][i] = arr[num][i][j];
+        }
+    }
+
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            arr[num][i][j] = area_arr[i][j];
+        }
+    }
+}
+
+void U(int n) {
+    char temp[3];
+    for (int j = 0; j < 3; j++) {
+        temp[j] = arr[4][n][j];
+    }
+    for (int j = 0; j < 3; j++) {
+        arr[4][n][j] = arr[2][n][j];
+    }
+    for (int j = 0; j < 3; j++) {
+        arr[2][n][j] = arr[5][n][j];
+    }
+    for (int j = 0; j < 3; j++) {
+        arr[5][n][j] = arr[3][n][j];
+    }
+    for (int j = 0; j < 3; j++) {
+        arr[3][n][j] = temp[j];
+    }
+}
+
+void D(int n) {
+    char temp[3];
+    for (int j = 0; j < 3; j++) {
+        temp[j] = arr[4][n][j];
+    }
+    for (int j = 0; j < 3; j++) {
+        arr[4][n][j] = arr[3][n][j];
+    }
+    for (int j = 0; j < 3; j++) {
+        arr[3][n][j] = arr[5][n][j];
+    }
+    for (int j = 0; j < 3; j++) {
+        arr[5][n][j] = arr[2][n][j];
+    }
+    for (int j = 0; j < 3; j++) {
+        arr[2][n][j] = temp[j];
+    }
+}
+
+void F(int n) {
+    char temp[3];
+    int i = n == 0 ? 2 : 0;
+    for (int j = 0; j < 3; j++) {
+        temp[j] = arr[0][n][j];
+    }
+    for (int j = 0; j < 3; j++) {
+        arr[0][n][j] = arr[4][2-j][n];
+    }
+    for (int j = 0; j < 3; j++) {
+        arr[4][j][n] = arr[1][i][j];
+    }
+    for (int j = 0; j < 3; j++) {
+        arr[1][i][j] = arr[5][2-j][i];
+    }
+    for (int j = 0; j < 3; j++) {
+        arr[5][j][i] = temp[j];
+    }
+}
+
+void B(int n) {
+    char temp[3];
+    int i = n == 0 ? 2 : 0;
+    for (int j = 0; j < 3; j++) {
+        temp[j] = arr[0][n][j];
+    }
+    for (int j = 0; j < 3; j++) {
+        arr[0][n][j] = arr[5][j][i];
+    }
+    for (int j = 0; j < 3; j++) {
+        arr[5][j][i] = arr[1][i][2-j];
+    }
+    for (int j = 0; j < 3; j++) {
+        arr[1][i][j] = arr[4][j][n];
+    }
+    for (int j = 0; j < 3; j++) {
+        arr[4][j][n] = temp[2-j];
+    }
+}
+
+void L(int n) {
+    char temp[3];
+    int i = n == 0 ? 2 : 0;
+    for (int j = 0; j < 3; j++) {
+        temp[j] = arr[0][j][n];
+    }
+    for (int j = 0; j < 3; j++) {
+        arr[0][j][n] = arr[3][2-j][i];
+    }
+    for (int j = 0; j < 3; j++) {
+        arr[3][j][i] = arr[1][2-j][n];
+    }
+    for (int j = 0; j < 3; j++) {
+        arr[1][j][n] = arr[2][j][n];
+    }
+    for (int j = 0; j < 3; j++) {
+        arr[2][j][n] = temp[j];
+    }
+}
+void R(int n) {
+    char temp[3];
+    int i = n == 0 ? 2 : 0;
+    for (int j = 0; j < 3; j++) {
+        temp[j] = arr[0][j][n];
+    }
+    for (int j = 0; j < 3; j++) {
+        arr[0][j][n] = arr[2][j][n];
+    }
+    for (int j = 0; j < 3; j++) {
+        arr[2][j][n] = arr[1][j][n];
+    }
+    for (int j = 0; j < 3; j++) {
+        arr[1][j][n] = arr[3][2-j][i];
+    }
+    for (int j = 0; j < 3; j++) {
+        arr[3][j][i] = temp[2-j];
+    }
+}
+
+void set_arr() {
+    for (int i = 0; i < 6; i++) {
+        for (int j = 0; j < 3; j++) {
+            for (int k = 0; k < 3; k++) {
+                arr[i][j][k] = board[i][j][k];
+            }
+        }
+    }
+}
+
+int main(void)
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(NULL);
+
+    cin >> N;
+    int M;
+    string s;
+    for (int i = 0; i < N; i++) {
+        cin >> M;
+        set_arr();
+        for (int j = 0; j < M; j++) {
+            cin >> s;
+            if (s[0] == 'U') {
+                if (s[1] == '+') {
+                    clock_wise(0);
+                    U(0);
+                }
+                else {
+                    re_clock_wise(0);
+                    D(0);
+                }
+            }
+            else if (s[0] == 'D') {
+                if (s[1] == '+') {
+                    clock_wise(1);
+                    D(2);
+                }
+                else {
+                    re_clock_wise(1);
+                    U(2);
+                }
+            }
+            else if (s[0] == 'F') {
+                if (s[1] == '+') {
+                    clock_wise(2);
+                    F(2);
+                }
+                else {
+                    re_clock_wise(2);
+                    B(2);
+                }
+            }
+            else if(s[0] == 'B') {
+                if (s[1] == '+') {
+                    clock_wise(3);
+                    B(0);
+                }
+                else {
+                    re_clock_wise(3);
+                    F(0);
+                }
+            }
+            else if (s[0] == 'L') {
+                if (s[1] == '+') {
+                    clock_wise(4);
+                    L(0);
+                }
+                else {
+                    re_clock_wise(4);
+                    R(0);
+                }
+            }
+            else {
+                if (s[1] == '+') {
+                    clock_wise(5);
+                    R(2);
+                }
+                else {
+                    re_clock_wise(5);
+                    L(2);
+                }
+            }
+        }
+        print_top();
+    }
+    
+    return 0;
+}

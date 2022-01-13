@@ -1,0 +1,79 @@
+#include <iostream>
+#include <queue>
+#define MAX 201
+using namespace std;
+
+int belt[MAX];//내구도
+bool visit[MAX];
+queue<int> robot;//로봇위치
+int N, K, UP, DOWN;
+int cnt=0;
+
+void move_belt() {
+    UP--;
+    if (UP == 0) {
+        UP = 2 * N;
+    }
+    DOWN--;
+    if (DOWN == 0) {
+        DOWN = 2 * N;
+    }
+}
+void move_robot() {
+    int now_pos, next_pos;
+    int size = robot.size();
+
+    for (int i = 0; i < size; i++) {
+        now_pos = robot.front();
+        visit[now_pos] = false;
+        robot.pop();
+        
+        if (now_pos == DOWN) continue;//내려가는 위치면 큐에서 제거, 위치 기록 삭제
+
+        next_pos = now_pos + 1;
+        if (next_pos > 2 * N) next_pos = 1;
+        
+        if (belt[next_pos] >= 1 && !visit[next_pos]) {
+            belt[next_pos]--;
+            if (belt[next_pos] == 0) cnt++;
+            if (next_pos == DOWN) continue;//이동 위치가 내려가는 위치면 삭제
+            robot.push(next_pos);
+            visit[next_pos]=true;
+        }
+        else {
+            visit[now_pos] = true;
+            robot.push(now_pos);
+        }
+        
+    }
+}
+
+void assign_robot() {
+    if (!visit[UP] && belt[UP] >= 1) {
+        visit[UP] = true;
+        belt[UP]--;
+        robot.push(UP);
+
+        if (belt[UP] == 0)cnt++;
+    }
+}
+int main(void)
+{
+    cin >> N >> K;
+    int answer = 0;
+    UP = 1;
+    DOWN = N;
+    for (int i = 1; i <= 2*N; i++) {
+        cin >> belt[i];
+    }
+    
+    while (cnt<K) {
+        answer++;
+        move_belt();
+        move_robot();
+        assign_robot();
+    }
+    cout << answer;
+    return 0;
+}
+

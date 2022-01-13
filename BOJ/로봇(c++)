@@ -1,0 +1,69 @@
+//bfs
+
+#include <iostream>
+#include <queue>
+
+using namespace std;
+
+int x_dir[4] = {1,-1,0,0};
+int y_dir[4] = {0,0,1,-1};
+int N, M;
+int arr[101][101];
+bool visit[101][101][4];
+int sx, sy, dx, dy, sdir, ddir;
+
+struct pos {
+	int y, x, dir, cnt;
+};
+
+int bfs() {
+	queue<pos> q;
+	q.push(pos{ sy,sx,sdir,0 });
+	visit[sy][sx][sdir] = true;
+
+	int y, x, dir, cnt, ny, nx;
+	while (!q.empty()) {
+		y = q.front().y;
+		x = q.front().x;
+		dir = q.front().dir;
+		cnt = q.front().cnt;
+		q.pop();
+		if (y == dy && x == dx && dir == ddir) {
+			return cnt;
+		}
+
+		//go k
+		for (int i = 1; i <= 3; i++) {
+			ny = y + (y_dir[dir]*i);
+			nx = x + (x_dir[dir] * i);
+			if (ny<1 || nx<1 || ny>N || nx>M)break;
+			if (arr[ny][nx] == 1)break;
+			if (visit[ny][nx][dir])continue;
+			visit[ny][nx][dir] = true;
+			q.push(pos{ ny,nx,dir, cnt + 1 });
+		}
+		//turn dir
+		for (int ndir = 0; ndir <4; ndir++) {
+			if ((dir / 2 )== (ndir / 2))continue;//같은 방향, 반대방향 skip
+			if (visit[y][x][ndir])continue;
+			visit[y][x][ndir] = true;
+			q.push(pos{ y,x,ndir, cnt + 1 });
+		}
+	}
+}
+
+int main() {
+	
+	cin >> N>>M;
+
+	for (int i = 1; i <= N; i++) {
+		for (int j = 1; j <= M; j++) {
+			cin >> arr[i][j];
+		}
+	}
+	cin >> sy >> sx >> sdir;
+	sdir--;
+	cin >> dy >> dx >> ddir;
+	ddir--;
+	cout<<bfs();
+}

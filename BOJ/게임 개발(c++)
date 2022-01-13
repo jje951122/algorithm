@@ -1,0 +1,56 @@
+//dp
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <queue>
+using namespace std;
+
+int N;
+vector<int> next_build[501];
+int pre_cnt[501];
+int time[501];
+int ans[501];
+void build() {
+	queue<int> q;
+	for (int i = 1; i <= N; i++) {
+		if (pre_cnt[i] == 0) {
+			q.push(i);
+		}
+		ans[i] = time[i];
+	}
+
+	while (!q.empty()) {
+		int now = q.front();
+		q.pop();
+		for (auto next : next_build[now]) {
+			ans[next]=max(ans[next],ans[now]+time[next]);
+			if (--pre_cnt[next] == 0) {
+				q.push(next);
+			}
+		}
+	}
+	for (int i = 1; i <= N; i++) {
+		cout << ans[i] << endl;
+	}
+}
+
+int main() {
+	ios_base::sync_with_stdio(0);
+	cin.tie(NULL);
+
+	cin >> N;
+	int n;
+	for (int i = 1; i <= N; i++) {
+		cin >> time[i];
+		while(1){
+			cin >> n;
+			if (n == -1)break;
+			next_build[n].push_back(i);
+			pre_cnt[i]++;
+		}
+	}
+	build();
+	
+	return 0;
+}
+    

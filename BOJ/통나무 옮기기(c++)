@@ -1,0 +1,125 @@
+//bfs, 시뮬레이션
+
+#include <fstream>
+#include <iostream>
+#include <queue>
+
+using namespace std;
+
+int x_dir[4] = { 1,-1,0,0 };
+int y_dir[4] = { 0,0,1,-1 };
+//가로 세로 상태의 통나무 위치 확인
+int y_check_dir[2][3] = { {-1,0,1},{0,0,0}};
+int x_check_dir[2][3] = { {0,0,0},{-1,0,1} };
+int N, M;
+int arr[51][51];
+bool visit[51][51][2];
+int sx, sy, dx, dy;
+bool S_right=false, E_right=false;//true : 가로
+
+struct pos {
+	int y, x, cnt;
+	bool right;
+};
+int bfs() {
+	queue<pos> q;
+	q.push(pos{ sy,sx, 0, S_right });
+	visit[sy][sx][S_right];
+
+	int y, x,  cnt, ny, nx;
+	bool isright, flag;
+	while (!q.empty()) {
+		y = q.front().y;
+		x = q.front().x;
+		cnt = q.front().cnt;
+		isright = q.front().right;
+		q.pop();
+
+		if (y == dy && x == dx && isright == E_right) {
+			return cnt;
+		}
+
+		//상하좌우
+		for (int i = 0; i < 4; i++) {
+			flag = true;
+      //중심 위치
+			ny = y + y_dir[i];
+			nx = x + x_dir[i];
+			for (int j = 0; j < 3; j++) {//세로가로 여부에 따라 통나무 좌표계산
+				int nyy = ny + y_check_dir[isright][j];
+				int nxx = nx + x_check_dir[isright][j];
+				if (nyy<1 || nxx<1 || nyy>N || nxx>N) {
+					flag = false;
+					break;
+				}
+				if (arr[nyy][nxx] == 1) {
+					flag = false;
+					break;
+				}
+			}
+			if (!flag)continue;
+			if (visit[ny][nx][isright])continue;
+			visit[ny][nx][isright] = true;
+			q.push(pos{ ny,nx,cnt + 1, isright });
+		}
+		//회전
+		if (visit[y][x][!isright])continue;//현재좌표에서 반대 방향 체크
+		flag = true;
+		for (int i = y - 1; i <= y + 1; i++) {
+			for (int j = x - 1; j <= x + 1; j++) {
+				if (i<1 || i>N || j<1 || j>N) {
+					flag = false;
+					break;
+				}
+				if (arr[i][j] == 1) {
+					flag = false;
+					break;
+				}
+			}
+			if (!flag)break;
+		}
+		if (!flag)continue;//회전 불가능
+		visit[y][x][!isright] = true;
+		q.push(pos{ y,x,cnt + 1, !isright });
+	}
+  return 0;
+}
+
+int main() {
+
+	cin >> N;
+	vector<pair<int, int>> _B;
+	vector<pair<int, int>> _E;
+	char temp;
+	for (int i = 1; i <= N; i++) {
+		for (int j = 1; j <= N; j++) {
+			cin >> temp;
+			if (temp == 'B') {
+				_B.push_back(make_pair(i, j));
+				arr[i][j] = 0;
+			}
+			else if (temp == 'E') {
+				_E.push_back(make_pair(i, j));
+				arr[i][j] = 0;
+				arr[i][j] = 0;
+			}
+			else if(temp=='0') {
+				arr[i][j] = 0;
+			}
+			else {
+				arr[i][j] = 1;
+			}
+		}
+	}
+	sy = _B[1].first; sx = _B[1].second;
+	if (_B[0].first == _B[1].first) {
+		S_right = true;
+	}
+	dy = _E[1].first; dx = _E[1].second;
+	if (_E[0].first == _E[1].first) {
+		E_right = true;
+	}
+
+	cout<<bfs();
+	return 0;
+}

@@ -1,0 +1,102 @@
+//브루트 포스, 시물레이션
+#include <iostream>
+#include <cstring>
+#include <vector>
+
+using namespace std;
+
+int N, M, K;
+bool change[11][11];
+bool sticker[11][11];
+bool map[41][41];
+int s_N, s_M;
+int dy[] = { 0,1,0,-1 };
+int dx[] = { 1,0,-1,0 };
+
+void putsticker(int i, int j) {
+	for (int y = 0; y < s_N; y++) {
+		for (int x = 0; x < s_M; x++) {
+			if (sticker[y][x]) {
+				map[i + y][j + x] = true;
+			}
+		}
+	}
+}
+
+bool check(int i, int j) {
+	for (int y = 0; y < s_N; y++) {
+		for (int x = 0; x < s_M; x++) {
+			if (map[i + y][j + x] && sticker[y][x])
+				return false;
+		}
+	}
+	return true;
+}
+
+
+void rotate() {
+	memset(change, false, sizeof(change));
+	vector<int> temp;
+	for (int i = 0; i < s_N; i++) {
+		temp.clear();
+		for (int j = 0; j < s_M; j++) {
+			temp.push_back(sticker[i][j]);
+		}
+		for (int j = s_M-1; j >=0; j--) {
+			change[j][s_N-i-1] = temp[j];
+		}
+	}
+	int t, m;
+	t = s_N;
+	s_N = s_M;
+	s_M = t;
+	m = s_N > s_M ? s_N : s_M;
+
+	for (int i = 0; i < m; i++) {
+		for (int j = 0; j < m; j++) {
+			sticker[i][j] = change[i][j];
+		}
+	}
+}
+
+bool solve() {
+	for (int i = 0; i <= N - s_N; i++) {
+		for (int j = 0; j <= M - s_M; j++) {
+			if (check(i, j)) {
+				putsticker(i, j);
+				return true;
+            }
+		}
+	}
+	return false;
+}
+
+int main() {
+	cin >> N >> M >> K;
+	for (int _ = 0; _ < K; _++) {
+		memset(sticker, false, sizeof(sticker));
+		cin >> s_N >> s_M;
+		for (int i = 0; i < s_N; i++) {
+			for (int j = 0; j < s_M; j++) {
+				cin >> sticker[i][j];
+			}
+		}
+		for (int i = 0; i < 4; i++) {
+			if (solve())
+				break;
+			else
+				rotate();
+		}
+	}
+
+	int cnt = 0;
+	for (int i = 0; i < N; i++) {
+		for (int j = 0; j < M; j++) {
+			if (map[i][j])
+				cnt++;
+		}
+	}
+    
+	cout << cnt;
+	return 0;
+}

@@ -1,0 +1,43 @@
+//플로이드 와샬
+#include <iostream>
+
+using namespace std;
+
+int N, M;
+int arr[101][101];
+
+int main(void)
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(NULL);
+
+    cin >> N >> M;
+    
+    for (int i = 0; i < M; i++) {
+        int a, b;
+        cin >> a >> b;
+        //대소관계에 따라 다르게
+        arr[a][b] = 1;
+        arr[b][a] = -1;
+    }
+
+    for (int k = 1; k <= N; k++) {
+        for (int i = 1; i <= N; i++) {
+            for (int j = 1; j <= N; j++) {
+                if (arr[i][j]!=0)continue;
+                if(arr[i][k]==arr[k][j]&&arr[i][k]!=0&&arr[k][j]!=0)//대소관계가 동일
+                    arr[i][j] = arr[i][k];
+            }
+        }
+    }
+    for (int i = 1; i <= N; i++) {
+        int cnt = 0;
+        for (int j = 1; j <= N; j++) {
+            if (i == j)continue;
+            if (arr[i][j]==0)cnt++;
+        }
+        cout << cnt << endl;
+    }
+
+    return 0;
+}

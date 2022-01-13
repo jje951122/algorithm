@@ -1,0 +1,174 @@
+//시뮬레이션
+#include <iostream>
+
+using namespace std;
+int N;
+int blue[10][4];
+int green[10][4];
+int arr[2][10][4];//0 파랑, 1 녹
+int score = 0;
+int command_cnt = 1;//명령마다 다른 값을 넣어주기 
+int x_dir[2] = { -1,1 };
+
+void setting_block(int y, int x, int type) {
+    int bx, by, gx, gy;
+    bx = y;
+    by = x;
+    gx = x;
+    gy = y;
+    if (type == 1) {//.
+        while (by + 1 <= 9 && arr[0][by+1][bx] == 0) 
+            by++;
+        arr[0][by][bx] = command_cnt;
+
+        while (gy + 1 <= 9 && arr[1][gy+1][gx] == 0) 
+            gy++;
+        arr[1][gy][gx] = command_cnt;
+    }
+    else if (type == 2) {//-
+        while (by + 2 <= 9 && arr[0][by + 2][bx] == 0)
+            by++;
+        arr[0][by][bx] = command_cnt; arr[0][by + 1][bx] = command_cnt;
+
+        while (gy + 1 <= 9 && (arr[1][gy + 1][gx] == 0 && arr[1][gy + 1][gx + 1] == 0))
+            gy++;
+        arr[1][gy][gx] = command_cnt; arr[1][gy][gx+1] = command_cnt;
+    }
+    else {//l
+        while (by + 1 <= 9 && (arr[0][by + 1][bx] == 0 && arr[0][by + 1][bx + 1] == 0))
+            by++;
+        arr[0][by][bx] = command_cnt; arr[0][by][bx + 1] = command_cnt;
+
+        while (gy + 2 <= 9 && arr[1][gy + 2][gx] == 0)
+            gy++;
+        arr[1][gy][gx] = command_cnt; arr[1][gy + 1][gx] = command_cnt;
+    }
+    command_cnt++;
+}
+
+void remove(int color, int y, int cnt) {
+    int s_y = y;
+    for (y; y > s_y - cnt; y--) {
+        for (int x = 0; x < 4; x++) {
+            arr[color][y][x] = 0;
+        }
+    }
+}
+void move(int color,int y) {
+    int xx, swap_y;
+    bool flag;
+    for (y; y >= 4; y--) {//해당 y에서부터 위로
+        for (int x = 0; x < 4; x++) {
+            if (arr[color][y][x] != 0)continue;
+            flag = false;
+            swap_y = y - 1;
+            while (swap_y >= 4 && arr[color][swap_y][x] == 0) {
+                swap_y--;
+            }
+            if (arr[color][swap_y][x] == 0 )continue;
+
+            for (int i = 0; i < 2; i++) {//좌우 같은 값있는지 확인
+                xx = x + x_dir[i];
+                if (xx < 0 || xx >= 4)continue;
+
+                if (arr[color][swap_y][x] == arr[color][swap_y][xx]) {
+                    flag = true;
+                    int swap_y2 = y - 1;
+                    if (arr[color][y][xx] != 0)break;
+
+                    while (swap_y2 >= 4 && arr[color][swap_y2][xx] == 0) {
+                        swap_y2--;
+                    }
+
+                    if (swap_y == swap_y2) {//좌우 이동위치가 같으면 이동
+                        arr[color][y][xx] = arr[color][swap_y2][xx];
+                        arr[color][y][x] = arr[color][swap_y][x];
+                        arr[color][swap_y2][xx] = 0;
+                        arr[color][swap_y][x] = 0;
+                        break;
+                    }
+                }
+            }
+            if (!flag) {//좌우 중에 같은 값이 존재하면 실행 x
+                arr[color][y][x]= arr[color][swap_y][x];
+                arr[color][swap_y][x] = 0;
+            }
+        }
+    }
+}
+
+void remove_block(int color) {
+    bool flag, bflag, rflag;
+    flag = true;
+    while (flag) {
+        rflag = false;
+        flag = false;
+        for (int i = 9; i >=6; i--) {
+            bflag = true;
+            for (int j = 0; j < 4; j++) {
+                if (arr[color][i][j] == 0) {
+                    bflag = false;
+                    break;
+                }
+            }
+            if (bflag) {//한줄 다 0이 아니면 score갱신 remove->move, 
+                remove(color, i, 1);
+                score++;
+                rflag = true;
+            }
+        }
+        if (rflag) {//지운게 있으면 이동
+            move(color, 9);
+            flag = true;//블록이 재갱신-> 다시 시작  
+        }
+    }
+}
+void check_special_zone() {
+    for (int color = 0; color < 2; color++) {
+        bool flag = true;
+        
+        flag = false;
+        int cnt = 0;
+        for (int i = 4; i < 6; i++) {
+            for (int j = 0; j < 4; j++) {
+                if (arr[color][i][j] != 0) {//한 줄내에 한칸이라도 값이 있다면 cnt++
+                    cnt++;
+                    break;
+                }
+            }
+        }
+        if (cnt > 0) {//한줄이라도 존재
+            remove(color, 9, cnt);//밑 줄에서 부터 cnt만큼 제거
+            move(color, 9);//이동
+            remove_block(color);//점수환산가능한지 확인
+        }
+    }
+}
+int main(void)
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(NULL);
+    
+    cin >> N ;
+    int x, y, type;
+    for (int i = 0; i < N; i++) {
+        cin >> type >> y >> x;
+        setting_block(y, x, type);
+        remove_block(0);
+        remove_block(1);
+        check_special_zone();
+    }
+
+    //타일이 있는 칸 개수
+    int cnt = 0;
+    for (int i = 6; i < 10; i++) {
+        for (int j = 0; j < 4; j++) {
+            if (arr[0][i][j] != 0)
+                cnt++;
+            if (arr[1][i][j] != 0)
+                cnt++;
+        }
+    }
+    cout << score << endl<<cnt;
+    return 0;
+}

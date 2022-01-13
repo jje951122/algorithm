@@ -1,0 +1,35 @@
+//dp
+
+#include <iostream>
+#include <algorithm>
+#define MAX 100000
+
+using namespace std;
+
+int dp[1001];
+int arr[1001];
+int N;
+
+int main(void)
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(NULL);
+
+    cin >> N;
+    fill_n(dp, N + 1, MAX);
+    for (int i = 1; i <= N; i++) {
+        cin >> arr[i];
+    }
+    dp[1] = 0;
+    for (int i = 1; i <= N - 1; i++) {
+        for (int jump = 1; jump <= arr[i]&& i + jump<=N; jump++) {
+            dp[i + jump] = min(dp[i + jump], dp[i] + 1);
+        }
+    }
+    if (dp[N] == MAX)
+        cout << -1;
+    else
+        cout << dp[N];
+
+    return 0;
+}

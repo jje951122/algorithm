@@ -1,0 +1,85 @@
+//시뮬레이션
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+int N, K;
+
+struct p {
+    int y, x, dir;
+}horse[10];
+vector<int> arr[13][13];
+int board[13][13];
+int y_dir[] = { 0,0,0,-1,1 };
+int x_dir[] = { 0,1,-1,0,0 };
+int turn[] = { 0,2,1,4,3 };
+
+bool move(int i) {
+    int y, x, ny, nx, dir;
+    
+    y = horse[i].y;
+    x = horse[i].x;
+    dir = horse[i].dir;
+        
+    ny = y + y_dir[dir];
+    nx = x + x_dir[dir];
+
+    if (ny<1 || nx<1 || ny>N || nx>N || board[ny][nx] == 2) {//다음 칸이동 X
+        dir = turn[dir];
+        horse[i].dir = dir;
+        ny = y + y_dir[dir];
+        nx = x + x_dir[dir];
+        if (ny<1 || nx<1 || ny>N || nx>N || board[ny][nx] == 2)//다음 칸이동 X
+        return false;
+    }
+    
+    vector<int> &now_seq = arr[y][x];
+    vector<int> &next_seq = arr[ny][nx];
+    auto now = find(now_seq.begin(), now_seq.end(), i);
+
+    if (board[ny][nx] == 1) {
+        reverse(now, now_seq.end());
+    }
+
+    for (auto iter = now; iter != now_seq.end(); ++iter) {//현재 위치부터 끝까지 이동
+        horse[*iter].y = ny;
+        horse[*iter].x = nx;
+        next_seq.push_back(*iter);
+    }
+    now_seq.erase(now, now_seq.end());//원래 위치 삭제
+
+    if (next_seq.size() >= 4)//이동위치에 말이 4개 이상
+        return true;
+    return false;
+}
+int main(void)
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(NULL);
+    
+    cin >> N >> K;
+    for (int i = 1; i <= N; i++) {
+        for (int j = 1; j <= N; j++) {
+            cin >> board[i][j];
+        }
+    }
+    int y, x, d;
+    for (int i = 0; i < K; i++) {
+        cin >> horse[i].y >> horse[i].x >> horse[i].dir;
+        arr[horse[i].y][horse[i].x].push_back(i);
+
+    }
+    int time = 1;
+    while (time <= 1000) {
+        for (int i = 0; i < K; i++) {
+            if (move(i)) {
+                cout << time;
+                return 0;
+            }
+        }
+        time++;
+    }
+
+    cout << -1;
+    return 0;
+}

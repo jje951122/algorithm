@@ -1,0 +1,104 @@
+//bfs
+#include <queue>
+#include <iostream>
+#include <cstring>
+
+using namespace std;
+
+int N;
+int arr[21][21];
+bool visit[21][21];
+int shark_size = 2;
+int x, y, eat_cnt=0;
+int x_dir[4] = {1,0,-1,0};
+int y_dir[4] = { 0,1,0,-1 };
+int time = 0;
+
+struct pos {
+    int y, x, dis;
+};
+
+vector<pos> search_feed() {
+    queue<pos> q;
+    vector<pos> feed_v;
+    memset(visit, false, sizeof(visit));
+    q.push(pos{y,x,0});
+    visit[y][x];
+    int nx, ny, next_x, next_y, dis;
+    int target_dis = 1234560;
+
+    while (!q.empty()) {
+        ny = q.front().y;
+        nx = q.front().x;
+        dis = q.front().dis;
+        q.pop();
+        if (arr[ny][nx] != 0 && arr[ny][nx] < shark_size) {//상어크기보다 작아야함
+            if (target_dis >= dis) {//거리가 적은 얘 우선, bfs라서 거리순으로 찾지만 같은 거리를 가진 먹이 가능성
+                target_dis = dis;
+                feed_v.push_back(pos{ ny,nx,dis });
+            }
+            continue;
+        }
+        for (int i = 0; i < 4; i++) {
+            next_y = ny + y_dir[i];
+            next_x = nx + x_dir[i];
+            if (next_x < 0 || next_y < 0 || next_x >= N || next_y >= N) continue;
+            if (!visit[next_y][next_x] && arr[next_y][next_x] <= shark_size) {
+                visit[next_y][next_x] = true;
+                q.push(pos{ next_y, next_x,dis + 1 });
+            }
+        }
+    }
+    return feed_v;
+}
+
+int main(void)
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(NULL);
+    cin >> N;
+
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            cin >> arr[i][j];
+            if (arr[i][j] == 9) {
+                y = i;x = j;
+                arr[i][j] = 0;
+            }
+        }
+    }
+    
+    vector<pos> v;
+    int target_y, target_x,dis, feed_size;
+    while (1) {
+        v = search_feed();
+        if (v.size() == 0) {//먹을거 X
+            cout << time;
+            break;
+        }
+        else {//먹을거 1개 이상
+            target_y = v[0].y; target_x = v[0].x; dis = v[0].dis; feed_size = arr[v[0].y][v[0].x];
+            for (int i = 1; i < v.size(); i++) {
+                if (target_y > v[i].y) {//위에 있는 먹이 우선
+                    target_y = v[i].y; target_x = v[i].x;
+                    feed_size= arr[v[i].y][v[i].x];
+                }
+                else if (target_y == v[i].y) {//같은 높이라면 왼쪽에 있는 먹이 우선
+                    if (target_x > v[i].x) {
+                        target_y = v[i].y; target_x = v[i].x;
+                        feed_size = arr[v[i].y][v[i].x];
+                    }
+                }
+            }
+            arr[target_y][target_x] = 0;
+            y = target_y; x = target_x;
+            time += dis;
+            eat_cnt++;
+            if (eat_cnt == shark_size) {
+                eat_cnt = 0;
+                shark_size++;
+            }
+        }
+    }
+    return 0;
+}

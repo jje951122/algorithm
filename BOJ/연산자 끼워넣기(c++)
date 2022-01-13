@@ -1,0 +1,66 @@
+//백트래킹
+
+#include <iostream>
+#include <vector>
+
+using namespace std;
+int num[101];
+int N;
+int MIN = 1000000001;
+int MAX = -1000000001;
+vector<int> opt(4, 0);
+void cal(vector<int> opt_seq) {
+    int answer = num[0];
+    for (int i = 0; i < N-1; i++) {
+        if (opt_seq[i] == 0) {
+            answer += num[i + 1];
+        }
+        else if (opt_seq[i] == 1) {
+            answer -= num[i + 1];
+        }
+        else if (opt_seq[i] == 2) {
+            answer *= num[i + 1];
+        }
+        else {
+            answer /= num[i + 1];
+        }
+    }
+    if (answer > MAX)
+        MAX = answer;
+    if (answer < MIN)
+        MIN = answer;
+}
+
+void select(vector<int> opt_seq, vector<int> opt_count) {
+    if (opt_seq.size() == N - 1) {
+        cal(opt_seq);
+    }
+    for (int i = 0; i < 4; i++) {
+        if (opt_count[i] < opt[i]) {
+            opt_seq.push_back(i);
+            opt_count[i]++;
+            select(opt_seq, opt_count);
+            opt_seq.erase(opt_seq.end()-1);
+            opt_count[i]--;
+        }
+    }
+}
+
+int main(void)
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(NULL);
+
+    cin >> N;
+
+    for (int i = 0; i < N; i++) {
+        cin >> num[i];
+    }
+    for (int i = 0; i < 4; i++) {
+        cin >> opt[i];
+    }
+    vector<int> opt_s, opt_c(4,0);
+    select(opt_s, opt_c);
+    cout << MAX << endl << MIN;
+    return 0;
+}

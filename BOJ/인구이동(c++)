@@ -1,0 +1,79 @@
+//bfs, 시뮬레이션
+#include <queue>
+#include <iostream>
+#include <fstream>
+#include <cstring>
+#include <cmath>
+#include <vector>
+
+using namespace std;
+
+int N, L, R;
+int arr[51][51];
+bool visit[51][51];
+int x_dir[4] = {1,0,-1,0};
+int y_dir[4] = {0,1,0,-1};
+bool flag;
+
+void bfs(int y, int x) {
+    vector<pair<int, int>> v;
+    v.push_back(make_pair(y, x));
+    int sum = arr[y][x];
+    queue<pair<int, int>> q;
+    q.push(make_pair(y, x));
+    visit[y][x] = true;
+    int nx, ny, next_x, next_y;
+    while (!q.empty()) {
+        ny = q.front().first;
+        nx = q.front().second;
+        q.pop();
+        for (int i = 0; i < 4; i++) {
+            next_y = ny + y_dir[i];
+            next_x = nx + x_dir[i];
+            if (next_x < 0 || next_y < 0 || next_x >= N || next_y >= N)continue;
+            if (visit[next_y][next_x] || abs(arr[ny][nx] - arr[next_y][next_x]) < L || abs(arr[ny][nx] - arr[next_y][next_x]) > R) continue;
+            visit[next_y][next_x] = true;
+            v.push_back(make_pair(next_y, next_x));
+            q.push(make_pair(next_y, next_x));
+            sum += arr[next_y][next_x];
+        }
+    }
+    if (v.size() > 1) {
+        sum /= v.size();
+        for (int i = 0; i < v.size(); i++) {
+            arr[v[i].first][v[i].second] = sum;
+        }
+        flag = true;
+    }
+}
+
+int main(void)
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(NULL);
+    
+    cin >> N >> L >> R;
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            cin >> arr[i][j];
+        }
+    }
+    
+    int time = 0;
+    while (1) {
+        flag = false;
+        memset(visit, false, sizeof(visit));
+        
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
+                if (visit[i][j]) continue;
+                bfs(i, j);//전역 하나라도 이동이 있으면 true
+            }
+        }
+        if (!flag)break;
+        time++;
+    }
+    
+    cout << time;
+    return 0;
+}

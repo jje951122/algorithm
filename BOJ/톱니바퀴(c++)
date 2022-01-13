@@ -1,0 +1,86 @@
+//시뮬레이션
+#include <iostream>
+#include <vector>
+#include <cstring>
+#include <queue>
+
+using namespace std;
+int x_dir[2] = { 1,-1 };
+int wheel_point[2][2] = { {2,6},{6,2} };
+vector<vector<int>> wheel(4, vector<int>(8));
+bool visit[4];
+
+void action(vector<int> v) {
+    vector<int> temp;
+    for (int i = 0; i < v.size(); i++) {
+        if (v[i] == 0)continue;
+        temp.clear();
+        for (int j = 0; j < 8; j++) {
+            temp.push_back(wheel[i][(j + v[i] + 8) % 8]);
+        }
+        wheel[i] = temp;
+    }
+}
+
+void decide_dir(int index, int dir) {
+    memset(visit, false, sizeof(visit));
+    vector<int> wheel_dir(4, 0);
+    wheel_dir[index] = dir;
+
+    queue<pair<int,int>> q;//pos, dir
+    
+    q.push(make_pair(index,dir));
+    visit[index] = true;
+    int now_i,next_i, now_dir, next_dir;
+
+    while (!q.empty()) {
+        now_i = q.front().first;
+        now_dir = q.front().second;
+        q.pop();
+
+        for (int i = 0; i < 2; i++) {
+            next_i = now_i + x_dir[i];
+            if (next_i < 0 || next_i >= 4)continue;
+            if (visit[next_i])continue;
+            if (wheel[now_i][wheel_point[i][0]] == wheel[next_i][wheel_point[i][1]])continue;
+            q.push(make_pair(next_i, now_dir * -1));
+            wheel_dir[next_i] = now_dir * -1;
+            visit[next_i] = true;
+        }
+    }
+    action(wheel_dir);
+}
+
+int cal_score() {
+    int sum = 0;
+    int score = 1;
+    for (int i = 0; i < 4; i++) {
+        if (wheel[i][0] == 1) {
+            sum += score;
+        }
+        score *= 2;//다음 톱니로 넘어갈때 *2
+    }
+    return sum;
+}
+int main(void)
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(NULL);
+    
+    string s;
+    for (int i = 0; i < 4; i++) {
+        cin >> s;
+        for (int j = 0; j < 8; j++) {
+            wheel[i][j] = s[j] - '0';
+        }
+    }
+    int k;
+    cin >> k;
+    int dir, index;
+    for (int i = 0; i < k; i++) {
+        cin >> index >> dir;
+        decide_dir(index-1, dir*-1);
+    }
+    cout<<cal_score();
+    return 0;
+}

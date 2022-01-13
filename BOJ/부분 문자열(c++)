@@ -1,0 +1,52 @@
+//라빈 카프 알고리즘 
+//해쉬값으로 찾기
+
+#include <iostream>
+#include <string>
+using namespace std;
+
+int make_hash(string s) {
+    int ans = 0;
+    for (auto ch : s) {
+        ans = (ans * 256 + ch) % 127;
+    }
+    return ans;
+}
+
+int main(void)
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(NULL);
+
+    string parent, pattern;
+    cin >> parent >> pattern;
+    int parent_size=parent.size(), pattern_size = pattern.size();
+    
+    if (parent_size < pattern_size) {
+        cout << false;
+        return 0;
+    }
+
+    int hash_parent = make_hash(parent.substr(0, pattern_size));
+    int hash_pattern = make_hash(pattern);
+    int value=1;
+    for (int i = 0; i < pattern_size-1; i++) {
+        value = (value * 256) % 127;
+    }
+
+    for (int i = 0; i  <= parent_size-pattern_size; i++) {
+        if (hash_parent == hash_pattern) {
+            if (parent.substr(i, pattern_size) == pattern) {
+                cout << true;
+                return 0;
+            }
+        }
+        if (i + pattern_size < parent_size) {
+            hash_parent = hash_parent - ((parent[i] * value) % 127);
+            hash_parent = (((hash_parent * 256) % 127) + (parent[i + pattern_size])) % 127;
+        }
+    }
+    cout << false;
+
+    return 0;
+}

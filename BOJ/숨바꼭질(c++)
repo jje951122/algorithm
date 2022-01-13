@@ -1,0 +1,51 @@
+//bfs
+#include <iostream>
+#include <queue>
+
+#define MAX 100001
+using namespace std;
+
+int N, M;
+int x_dir[] = { -1,1 };
+bool visit[MAX];
+
+int bfs() {
+    queue<pair<int, int>> q;//위치, 초
+    q.push(make_pair(N, 0));
+    visit[N] = true;
+
+    int x,nx, time;
+    while (!q.empty()) {
+        x = q.front().first;
+        time = q.front().second;
+        q.pop();
+        if (x == M) {
+            return time;
+        }
+
+        for (int i = 0; i < 2; i++) {//걸어서 이동
+            nx = x + x_dir[i];
+            if (nx < 0 || nx >= MAX)continue;
+            if (visit[nx])continue;
+            visit[nx] = true;
+            q.push(make_pair(nx, time + 1));
+        }
+        //순간이동
+        nx = 2 * x;
+        if (nx >= MAX)continue;
+        if (visit[nx])continue;
+        visit[nx] = true;
+        q.push(make_pair(nx, time + 1));
+    }
+}
+
+int main(void)
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(NULL);
+
+    cin >> N >> M;
+    cout<<bfs();
+    
+    return 0;
+}

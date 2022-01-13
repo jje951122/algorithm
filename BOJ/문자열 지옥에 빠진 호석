@@ -1,0 +1,75 @@
+//dfs
+#include <iostream>
+#include <map>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+int N, M, K;
+string s;
+char arr[11][11];
+int dx[] = { 0,0,-1,1,1,1,-1,-1 };
+int dy[] = { 1,-1,0,0,1,-1,1,-1 };
+map<string, int> m;
+
+void change_pos(int &y, int &x) {
+	if (y < 1)
+		y = N;
+	if (y > N)
+		y = 1;
+	if (x < 1)
+		x = M;
+	if (x > M)
+		x = 1;
+}
+
+void dfs(int y, int x) {
+	if (s.length() > 5)return;
+
+	auto iter = m.find(s);
+	if (iter != m.end()) {
+		iter->second++;
+	}
+
+	for (int i = 0; i < 8; i++) {
+		int ny = y + dy[i];
+		int nx = x + dx[i];
+		if (ny<1 || nx<1 || ny>N || nx>M)
+			change_pos(ny, nx);
+		s+=arr[ny][nx];
+		dfs(ny, nx);
+		s.pop_back();
+	}
+}
+
+int main() {
+	ios_base::sync_with_stdio(0);
+	cin.tie(NULL);
+
+	cin >> N >> M >> K;
+	vector<string> v;
+	for (int i = 1; i <= N; i++) {
+		for (int j = 1; j <= M; j++) {
+			cin >> arr[i][j];
+		}
+	}
+	for (int i = 0; i < K; i++) {
+		cin >> s;
+		v.push_back(s);
+		m.insert({ s, 0 });
+	}
+	s.clear();
+	for (int i = 1; i <= N; i++) {
+		for (int j = 1; j <= M; j++) {
+			s.push_back(arr[i][j]);
+			dfs(i, j);
+			s.pop_back();
+		}
+	}
+	for (int i = 0; i < v.size(); i++) {
+		cout << m[v[i]] << endl;
+	}
+	return 0;
+}
+    

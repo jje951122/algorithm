@@ -1,0 +1,76 @@
+//시뮬레이션
+include <deque>
+#include <queue>
+#include <iostream>
+using namespace std;
+
+int N, K, L;
+int map[101][101];
+int x_dir[4] = {1,0,-1,0};
+int y_dir[4] = { 0,1,0,-1 };
+queue<pair<int, char>> command_info;
+
+int change_dir(char c, int dir) {
+    if (c == 'L') 
+        return (dir + 4 - 1) % 4;
+    else 
+        return (dir + 1) % 4;
+}
+
+int play() {
+    deque<pair<int, int>> q;
+    int time = 0;
+    int dir = 0;
+    int x, y;
+
+    x = y = 1;
+    q.push_front(make_pair(y, x));//뱀의 머리부터 꼬리까지 위치정보
+    map[y][x] = 2;
+
+    while (1) {
+        time++;
+        x += x_dir[dir];
+        y += y_dir[dir];
+        
+        if (x<1 || y<1 || x>N || y>N||map[y][x]==2)
+            return time;
+        else if (map[y][x] == 1) {
+            map[y][x] = 2;
+            q.push_front(make_pair(y, x));
+        }
+        else if (map[y][x] == 0) {//빈칸이면 현재위치 추가, 마지막 위치 삭제
+            map[y][x] = 2;
+            q.push_front(make_pair(y, x));
+            map[q.back().first][q.back().second] = 0;
+            q.pop_back();
+        }
+        if (time == command_info.front().first) {
+            dir = change_dir(command_info.front().second, dir);
+            command_info.pop();
+        }
+    }
+}
+
+int main(void)
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(NULL);
+
+    cin >> N>>K;
+    int y, x;
+    for (int i = 0; i < K; i++) {
+        cin >> y >> x;
+        map[y][x] = 1;//0:빈칸, 1:사과, 2:뱀
+    }
+
+    cin >> L;
+    int t;
+    char c;
+    for (int i = 0; i < L; i++) {
+        cin >> t >> c;
+        command_info.push(make_pair(t, c));
+    }
+
+    cout << play();
+    return 0;
+}

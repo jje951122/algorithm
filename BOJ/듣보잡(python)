@@ -1,0 +1,15 @@
+N,M=map(int, input().split())
+#교집합 계산을 위한 set
+arr1=set()
+arr2=set()
+
+for i in range(N):
+    arr1.add(input())
+for i in range(M):
+    arr2.add(input())
+    
+arr=sorted(arr1&arr2)
+    
+print(len(arr))
+for i in arr:
+    print(i)

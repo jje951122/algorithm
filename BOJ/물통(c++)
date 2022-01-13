@@ -1,0 +1,79 @@
+//bfs
+#include <iostream>
+#include <queue>
+#include <algorithm>
+
+using namespace std;
+
+int A,B,C;
+
+bool visit[201][201][201];
+int max_size[3];
+vector<int> ans;
+
+struct bottle {
+    int A, B, C;
+};
+
+void BFS(){
+    queue<bottle> q;
+    q.push(bottle{ 0,0,C });
+    visit[0][0][C] = true;
+    int bucket[3];
+    int n_bucket[3];
+    int move, remain;
+    while (!q.empty()) {
+        bucket[0] = q.front().A;
+        bucket[1] = q.front().B;
+        bucket[2] = q.front().C;
+        q.pop();
+
+        if (bucket[0] == 0) {
+            if (find(ans.begin(), ans.end(), bucket[2]) == ans.end())
+                ans.push_back(bucket[2]);
+        }
+
+        for (int i = 0; i < 3; i++) {
+            if (bucket[i] == 0)continue;//현재 통이 비어있으면 skip
+            
+            for (int j = i + 1; j <i+3 ; j++) {
+                int _j = j % 3;
+                if (bucket[_j] == max_size[_j])continue;//목표 통이 가득 차있으면 skip
+                n_bucket[0] = bucket[0];
+                n_bucket[1] = bucket[1];
+                n_bucket[2] = bucket[2];
+                move = bucket[i] + bucket[_j];
+                if (move > max_size[_j]) {//넘치면
+                    remain = move-max_size[_j] ;
+                    move = max_size[_j];
+                }
+                else {
+                    remain = 0;
+                }
+                n_bucket[i] = remain;
+                n_bucket[_j] = move;
+                if (visit[n_bucket[0]][n_bucket[1]][n_bucket[2]])continue;
+                visit[n_bucket[0]][n_bucket[1]][n_bucket[2]] = true;
+                q.push(bottle{ n_bucket[0],n_bucket[1],n_bucket[2] });
+            }
+        }
+    }
+}
+
+int main(void)
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(NULL);
+    
+    cin >>A>>B>>C;
+    max_size[0] = A;
+    max_size[1] = B;
+    max_size[2] = C;
+    
+    BFS();
+    sort(ans.begin(), ans.end());
+    for (int i = 0; i < ans.size(); i++) {
+        cout << ans[i] << ' ';
+    }
+    return 0;
+}

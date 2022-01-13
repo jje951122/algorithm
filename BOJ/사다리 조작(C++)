@@ -1,0 +1,63 @@
+//브루트 포트
+#include <iostream>
+
+using namespace std;
+
+int N, M, H;
+const int INF = 987654321;
+int ans = INF;
+bool arr[31][11];
+bool check() {
+    for (int x = 1; x <= N; x++) {
+        int cur = x;
+        for (int y = 1; y <= H; y++) {
+            if (arr[y][cur]) 
+                cur++;
+            else if (arr[y][cur - 1])
+                cur--;
+        }
+        if (cur != x) 
+            return false;
+    }
+    return true;
+}
+
+void add_line(int index, int cnt) {
+    if (cnt > 3) 
+        return ;
+    
+    if (check()) {
+        if (ans > cnt)
+            ans = cnt;
+        return ;
+    }
+    for (int i = index; i <= H; i++) {
+        for (int j = 1; j <= N; j++) {
+            if (arr[i][j]) continue;
+            if (arr[i][j - 1]) continue;
+            if(arr[i][j + 1])continue;
+            arr[i][j] = true;
+            add_line(i, cnt + 1);
+            arr[i][j] = false;
+        }
+    }
+}
+
+int main(void)
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(NULL);
+    
+    cin >> N >> M >> H;
+    int a, b;
+    for (int i = 0; i < M; i++) {
+        cin >> a >> b;
+        arr[a][b] = true;
+    }
+    add_line(1, 0);
+    if (ans == INF)
+        cout << -1;
+    else
+        cout << ans;
+    return 0;
+}

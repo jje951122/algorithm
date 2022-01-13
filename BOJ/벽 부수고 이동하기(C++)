@@ -1,0 +1,76 @@
+//bfs
+#include <iostream>
+#include <queue>
+#include <vector>
+
+using namespace std;
+
+int N, M;
+int arr[1001][1001];
+bool visit[1001][1001][2];
+int x_dir[4] = {1,0,-1,0};
+int y_dir[4] = { 0,1,0,-1 };
+
+struct pos{
+    int y, x, dis;
+    bool use = false;
+};
+
+int bfs() {
+    queue<pos> q;
+    q.push(pos{ 1,1,1 });
+    visit[1][1][false] = true;
+    int y, x, ny, nx, dis;
+    bool use,last_use;
+    while (!q.empty()) {
+        y = q.front().y;
+        x = q.front().x;
+        dis = q.front().dis;
+        last_use = q.front().use;
+        q.pop();
+
+        if (y == N && x == M) {
+            return dis;
+        }
+
+        for (int i = 0; i < 4; i++) {
+            ny = y + y_dir[i];
+            nx = x + x_dir[i];
+            use = last_use;
+
+            if (ny<1 || nx<1 || ny>N || nx>M)continue;
+            if (arr[ny][nx] == 0) {
+                if (visit[ny][nx][use])continue;
+                q.push(pos{ ny,nx,dis + 1,use });
+                visit[ny][nx][use] = true;
+            }
+            else {
+                if (use)continue;
+                use = true;
+                if (visit[ny][nx][use])continue;
+                q.push(pos{ ny,nx,dis + 1, use });
+                visit[ny][nx][use] = true;
+            }
+        }
+    }
+    return -1;
+}
+
+int main(void)
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(NULL);
+    
+    cin >> N >> M;
+    char c;
+    for (int i = 1; i <= N; i++) {
+        for (int j = 1;j <= M; j++) {
+            cin >> c;
+            arr[i][j] = c - '0';
+        }
+    }
+
+    cout<<bfs();
+    
+    return 0;
+}

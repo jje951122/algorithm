@@ -1,0 +1,63 @@
+//bfs
+#include <iostream>
+#include <queue>
+#include <cstring>
+using namespace std;
+
+int x_dir[] = { 1,0,-1,0 };
+int y_dir[] = { 0,1,0,-1 };
+char map[51][51];
+bool visit[51][51];
+int N, M;
+int ans = 0;
+
+struct pos { int y, x, dis; };
+void bfs(int i, int j) {
+    queue<pos> q;
+    q.push(pos{ i,j,0 });
+    memset(visit, false, sizeof(visit));
+    visit[i][j] = true;
+
+    int x, y, nx, ny, dis;
+    while(!q.empty()) {
+        y = q.front().y;
+        x = q.front().x;
+        dis = q.front().dis;
+        q.pop();
+
+        if (ans < dis) {
+            ans = dis;
+        }
+
+
+        for (int d = 0; d < 4; d++) {
+            ny = y + y_dir[d];
+            nx = x + x_dir[d];
+            if (ny < 0 || nx < 0 || ny >= N || nx >= M)continue;
+            if (visit[ny][nx]||map[ny][nx]=='W')continue;
+            visit[ny][nx] = true;
+            q.push(pos{ ny,nx,dis + 1 });
+        }
+    }
+}
+
+int main(void)
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(NULL);
+
+    cin >> N >> M;
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < M; j++) {
+            cin >> map[i][j];
+        }
+    }
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < M; j++) {
+            if (map[i][j]=='W')continue;
+            bfs(i, j);
+        }
+    }
+    cout << ans;
+    return 0;
+}

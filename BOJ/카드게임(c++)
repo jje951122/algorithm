@@ -1,0 +1,43 @@
+//dp, 그리드?
+
+#include <iostream>
+#include <algorithm>
+#include <cstring>
+
+using namespace std;
+int arr[1001];
+int dp[1001][1001][2];
+int choice(int left, int right, bool flag) {//flag=false : 근우, else : 명우
+	int &now = dp[left][right][flag];
+	if (now != -1)
+		return now;
+	if (left >= right) {
+		if (!flag)
+			return now = arr[left];
+		else
+			return 0;
+	}
+  //리턴은 근우의 점수
+	if(!flag)//근우의 최선은 자신의 점수를 최대화
+		return now = max(choice(left+1, right,!flag) +arr[left], choice(left, right-1,!flag)+arr[right]);
+	else//명우의 최선은 근우의 점수를 최소화
+		return now = min(choice(left + 1, right, !flag), choice(left, right - 1, !flag));
+}
+
+int main() {
+	ios_base::sync_with_stdio(0);
+	cin.tie(0);
+
+	int T,N;
+	cin >> T;
+	for (int _ = 0; _ < T; _++) {
+		cin >> N;
+		memset(dp, -1, sizeof(dp));
+		for (int i = 1; i <= N; i++) {
+			cin >> arr[i];
+		}
+		cout<<choice(1, N, false)<<endl;
+	}
+	
+	return 0;
+}

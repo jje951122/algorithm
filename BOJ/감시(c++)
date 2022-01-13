@@ -1,0 +1,126 @@
+//백트래킹
+#include <iostream>
+#include <vector>
+#include <cstring>
+
+using namespace std;
+int N, M;
+
+int arr[9][9];
+int ans = 987654321;
+int y_dir[] = { 0,1,0,-1 };
+int x_dir[] = { 1,0,-1,0 };
+int rot_cnt[] = { 0,4,2,4,4,1 };
+struct CCTV {
+    int y, x, type;
+};
+vector<CCTV> CCTV_V;
+
+void copy_arr(int src[9][9], int des[9][9]) {
+    for (int i = 1; i <= N; i++) {
+        for (int j = 1; j <= M; j++) {
+            des[i][j] = src[i][j];
+        }
+    }
+}
+
+void num_5camera() {//5번카메라는 항상 변동 없음 고정
+    int  nx, ny;
+    bool visit[9][9] = {false, };
+    for (int i = 1; i <= N; i++) {
+        for (int j = 1; j <= M; j++) {
+            if (arr[i][j] == 5&&!visit[i][j]) {
+                visit[i][j] = true;
+                for (int dir = 0; dir < 4; dir++) {
+                    nx = j + x_dir[dir];
+                    ny = i + y_dir[dir];
+                    while ((nx >= 1 && ny >= 1 && nx <= M && ny <= N)) {
+                        if (arr[ny][nx] == 6|| arr[ny][nx] == 5)break;
+                        if (arr[ny][nx] == 0)arr[ny][nx] = -1;
+                        visit[ny][nx] = true;
+                        nx +=  x_dir[dir];
+                        ny +=  y_dir[dir];
+                    }
+                }
+            }
+        }
+    }
+}
+
+void count_arr() {
+    int cnt = 0;
+    for (int i = 1; i <= N; i++) {
+        for (int j = 1; j <= M; j++) {
+            if (arr[i][j] == 0)
+                cnt++;
+        }
+    }
+    if (cnt < ans)
+        ans = cnt;
+ }
+
+void CCTV_update(int dir, int cctv_i) {
+    int ny, nx;
+    ny = CCTV_V[cctv_i].y + y_dir[dir];
+    nx = CCTV_V[cctv_i].x + x_dir[dir];
+
+    while ((ny >= 1 && ny <= N) && (nx >= 1 && nx <= M) ) {
+        if (arr[ny][nx] == 6) break;
+        if (arr[ny][nx] == 0)
+            arr[ny][nx] = -1;
+        ny += y_dir[dir];
+        nx += x_dir[dir];
+    } 
+}
+
+void dfs(int index) {
+    if (index == CCTV_V.size()) {
+        count_arr();
+        return;
+    }
+    int type = CCTV_V[index].type;
+    int copy[9][9];
+    for (int i = 0; i < rot_cnt[type]; i++) {
+        copy_arr(arr, copy);
+        if (type == 1) {
+            CCTV_update(i, index);
+        }
+        else if (type == 2) {
+            CCTV_update(i, index);
+            CCTV_update((i + 2) % 4, index);
+        }
+        else if (type == 3) {
+            CCTV_update(i, index);
+            CCTV_update((i + 1) % 4, index);
+        }
+        else if (type == 4) {
+            CCTV_update(i, index);
+            CCTV_update((i + 1) % 4, index);
+            CCTV_update((i + 2) % 4, index);
+        }
+        
+        dfs(index + 1);
+        copy_arr(copy, arr);
+    }
+}
+
+int main(void)
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(NULL);
+    
+    cin >> N >> M;
+    
+    for (int i = 1; i <= N; i++) {
+        for (int j = 1; j <= M; j++) {
+            cin >> arr[i][j];
+            if (arr[i][j] >= 1 && arr[i][j] <= 4)
+                CCTV_V.push_back(CCTV{ i,j,arr[i][j] });
+        }
+    }
+    num_5camera();
+    dfs(0);
+
+    cout << ans;
+    return 0;
+}

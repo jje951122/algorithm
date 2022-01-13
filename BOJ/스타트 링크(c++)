@@ -1,0 +1,54 @@
+//bfs
+
+#include <iostream>
+#include <queue>
+#include <fstream>
+using namespace std;
+
+int F,S,G,U,D;
+
+bool visit[1000001];
+struct pos {
+    int floor, dis;
+};
+int bfs() {
+    queue<pos> q;
+    visit[S] = true;
+    q.push(pos{ S, 0 });
+    int now,  dis;
+
+    while (!q.empty()) {
+        now = q.front().floor;
+        dis = q.front().dis;
+        q.pop();
+        if (now == G) {
+            
+            return dis;
+        }
+        if(now + U <=F && !visit[now +U]) {
+            q.push(pos{ now + U, dis + 1 });
+            visit[now + U] = true;
+        }
+        if ((now - D >0) && (!visit[now - D]) ) {
+            q.push(pos{ now - D, dis + 1 });
+            visit[now - D] = true;
+        }
+    }
+    return -1;
+}
+
+int main(void)
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(NULL);
+
+    cin >> F>>S>>G>>U>>D;
+    
+    int ans = bfs();
+    if (ans == -1) {
+        cout << "use the stairs";
+    }
+    else
+        cout << ans;
+    return 0;
+}

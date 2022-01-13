@@ -1,0 +1,50 @@
+//플로이드 와샬, dfs
+
+#include <iostream>
+
+using namespace std;
+
+int N;
+int time[11][11];
+bool visit[11];
+int answer = 1234567;
+
+void dfs(int now, int cnt, int dist) {
+	if (cnt == N) {
+		if (dist < answer)
+			answer = dist;
+		return;
+	}
+	for (int i = 0; i < N; i++) {
+		if (visit[i])continue;
+		visit[i] = true;
+		dfs(i, cnt + 1, dist + time[now][i]);
+		visit[i] = false;
+	}
+}
+
+int main() {
+	int now;
+	cin >> N >> now;
+	visit[now] = true;
+	int t;
+	for (int i = 0; i < N; i++) {
+		for (int j = 0; j < N; j++) {
+			cin >> time[i][j];
+		}
+	}
+
+	for (int i = 0; i < N; i++) {
+		for (int j = 0; j < N; j++) {
+			for (int k = 0; k < N; k++) {
+				if (time[i][k] > time[i][j] + time[j][k])
+					time[i][k] = time[i][j] + time[j][k];
+			}
+		}
+	}
+
+	dfs(now, 1, 0);
+	
+	cout << answer;
+	return 0;
+}

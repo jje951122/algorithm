@@ -1,0 +1,80 @@
+//브루트포스, dfs
+#include <iostream>
+
+using namespace std;
+
+int N, M;
+int arr[501][501];
+bool visit[501][501];
+int ans = 0;
+int y_dir[] = { 0,1,0,-1 };
+int x_dir[] = { 1,0,-1,0 };
+
+void dfs(int i, int j, int cnt, int sum) {
+    if (cnt == 4) {
+        if (sum > ans)
+            ans = sum;
+        return;
+    }
+    int ny, nx;
+    for (int d = 0; d< 4; d++) {
+        ny = i + y_dir[d];
+        nx = j + x_dir[d];
+        if (ny<1 || nx<1 || ny>N || nx>M)continue;
+        if (visit[ny][nx])continue;
+        visit[ny][nx] = true;
+        dfs(ny, nx, cnt + 1, sum + arr[ny][nx]);
+        visit[ny][nx] = false;
+    }
+}
+
+void other_shape(int i, int j) {
+    int sum = 0;
+    //ㅏ ㅓ
+    if ((i - 1 >= 1 && i + 1 <= N) && (j >= 1 && j + 1 <= M)) {
+        sum = arr[i][j] + arr[i-1][j] + arr[i+1][j] + arr[i][j+1];
+        if (ans < sum) {
+            ans = sum;
+        }
+        sum= arr[i][j] + arr[i - 1][j+1] + arr[i ][j+1] + arr[i+1][j + 1];
+        if (ans < sum) {
+            ans = sum;
+        }
+    }
+    
+    //ㅜ ㅗ
+    if ((i >= 1 && i + 1 <= N) && (j - 1 >= 1 && j + 1 <= M)) {
+        sum = arr[i][j] + arr[i ][j-1] + arr[i][j+1] + arr[i+1][j];
+        if (ans < sum) {
+            ans = sum;
+        }
+        sum = arr[i][j] + arr[i + 1][j - 1] + arr[i + 1][j] + arr[i + 1][j + 1];
+        if (ans < sum) {
+            ans = sum;
+        }
+    }
+}
+
+int main(void)
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(NULL);
+    
+    cin >> N >> M;
+    for (int i = 1; i <= N; i++) {
+        for (int j = 1; j <= M; j++) {
+            cin >> arr[i][j];
+        }
+    }
+    
+    for (int i = 1; i <= N; i++) {
+        for (int j = 1; j <= M; j++) {
+            visit[i][j] = true;
+            dfs(i, j, 1, arr[i][j]);
+            visit[i][j] = false;
+            other_shape(i, j);
+        }
+    }
+    cout << ans;
+    return 0;
+}

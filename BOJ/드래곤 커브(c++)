@@ -1,0 +1,58 @@
+//시뮬레이션
+#include <iostream>
+#include <vector>
+
+using namespace std;
+int N;
+bool map[101][101];
+int y_dir[] = { 0,-1,0,1 };
+int x_dir[] = { 1,0,-1,0 };
+vector<int> dragon;
+int ny, nx;
+
+void new_generation(vector<int>& dragon) {
+    int d_size = dragon.size();
+    int dir;
+    for (int i = d_size - 1; i >= 0; i--) {
+        dir = (dragon[i] + 1) % 4;
+        ny = ny + y_dir[dir];
+        nx = nx + x_dir[dir];
+        map[ny][nx] = true;
+        dragon.push_back(dir);
+    }
+}
+
+int main(void)
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(NULL);
+    
+    cin >> N;
+    int y, x, d, g;
+    
+    for (int i = 0; i < N; i++) {
+        cin >> x >> y >> d >> g;
+        //0 세대
+        dragon.clear();
+        map[y][x] = true;
+        ny = y + y_dir[d];
+        nx = x + x_dir[d];
+        map[ny][nx] = true;
+        dragon.push_back(d);
+        
+        for (int gen = 0; gen < g; gen++) {
+            new_generation(dragon);
+        }  
+    }
+
+    int cnt = 0;
+    for (int i = 0; i < 100; i++) {
+        for (int j = 0; j < 100; j++) {
+            if (map[i][j] && map[i][j + 1] && map[i + 1][j] && map[i + 1][j + 1])
+                cnt++;
+        }
+    }
+    cout << cnt;
+
+    return 0;
+}

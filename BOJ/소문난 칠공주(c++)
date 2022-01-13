@@ -1,0 +1,98 @@
+
+#include <iostream>
+#include <queue>
+#include <vector>
+#include <cstring>
+
+using namespace std;
+
+int ans = 0;
+int x_dir[4] = {1,0,-1,0};
+int y_dir[4] = { 0,1,0,-1 };
+vector<pair<int, int>> v;
+char arr[5][5];
+bool member[5][5];//소문난 칠공주의 맴버
+bool check[5][5];
+
+bool ispossible() {
+    memset(check, false, sizeof(check));
+    int S = 0, Y = 0;
+    for (int i = 0; i < 7; i++) {
+        if (arr[v[i].first][v[i].second] == 'Y')
+            Y++;
+        else
+            S++;
+    }
+
+    if (S < 4) 
+        return false;
+    
+    queue<pair<int, int>> q;
+    q.push(v[0]);
+    check[v[0].first][v[0].second] = true;
+    
+    int y, x, ny, nx;
+    int cnt = 1;
+    while (!q.empty()) {
+        y = q.front().first;
+        x = q.front().second;
+        q.pop();
+
+        if (cnt == 7) {
+            return true;
+        }
+        for (int i = 0; i < 4; i++) {
+            ny = y + y_dir[i];
+            nx = x + x_dir[i];
+            if (ny < 0 || nx < 0 || nx >= 5 || ny >= 5)continue;
+            if (!check[ny][nx]&&member[ny][nx]) {
+                q.push(make_pair(ny, nx));
+                check[ny][nx] = true;
+                cnt++;
+            }
+
+        }
+    }
+    return false;
+}
+
+void select_member(int y, int x, int cnt) {
+    if (cnt == 7) {
+        if (ispossible()) {
+            ans++;
+        }
+        return;
+    }
+    int i = y, j = x;
+    if (cnt > 1) {
+        i = x == 4 ? y + 1 : y;
+        j = x == 4 ? 0 : x + 1;
+    }
+    for (; i < 5; i++) {
+        for (; j < 5; j++) {
+            if (member[i][j])continue;
+            member[i][j] = true;
+            v.push_back(make_pair(i, j));
+            select_member(i, j, cnt + 1);
+            v.pop_back();
+            member[i][j] = false;
+        }
+        j = 0;
+    }
+}
+
+int main(void)
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(NULL);
+    
+    for (int i = 0; i < 5; i++) {
+        for (int j = 0;j < 5; j++) {
+            cin >> arr[i][j];
+        }
+    }
+
+    select_member(0, 0, 0);
+    cout << ans;
+    return 0;
+}

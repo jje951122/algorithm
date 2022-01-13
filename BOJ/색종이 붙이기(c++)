@@ -1,0 +1,83 @@
+//브루트 포스, 백 트래킹
+#include <iostream>
+#include <vector>
+#define N 10
+
+using namespace std;
+
+int min_cnt = 100;
+bool arr[10][10];
+bool visit[10][10];
+int paper[6] = { 0,5,5,5,5,5 };
+vector<pair<int, int>> pos_v;
+
+bool check(int i, int j, int size) {
+    if (i + size > N || j + size > N)return false;
+
+    for (int y = i; y < i + size; y++) {
+        for (int x = j; x < j + size; x++) {
+            if (!arr[y][x]||visit[y][x])//종이가 겹치거나 영역안에 빈공간
+                return false;
+        }
+    }
+    return true;
+}
+
+void dfs(int index, int paper_cnt, int now_cnt) {
+    if (now_cnt == pos_v.size()) {
+        if (min_cnt > paper_cnt)
+            min_cnt = paper_cnt;
+        return;
+    }
+    int idx,i, j;
+    for (idx = index; idx < pos_v.size(); idx++) {
+        if (visit[pos_v[idx].first][pos_v[idx].second]) continue;
+        i = pos_v[idx].first;
+        j = pos_v[idx].second;
+        break;
+    }
+    for (int size = 5; size >= 1; size--) {
+        int cnt = 0;
+        if (paper[size] == 0)continue;
+        if (!check(i, j, size))continue;
+        for (int y = i; y < i + size; y++) {
+            for (int x = j; x < j + size; x++) {
+                if (arr[y][x])
+                    cnt++;
+                visit[y][x] = true;
+            }
+        }
+        
+        paper[size]--;
+        dfs(idx+1, paper_cnt +1, now_cnt+cnt);
+        paper[size]++;
+        for (int y = i; y < i + size; y++) {
+            for (int x = j; x < j + size; x++) {
+                visit[y][x] = false;
+            }
+        }
+        
+    }
+}
+
+int main(void)
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(NULL);
+    
+    for (int i = 0; i < N; i++){
+        for (int j = 0; j < N; j++) {
+            cin >> arr[i][j];
+            if (arr[i][j]) {
+                pos_v.push_back(make_pair(i, j));
+            }
+        }
+    }
+    
+    dfs(0,0,0);
+    if (min_cnt == 100)
+        cout << -1;
+    else
+        cout << min_cnt;
+    return 0;
+}

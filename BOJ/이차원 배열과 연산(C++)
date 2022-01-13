@@ -1,0 +1,118 @@
+#include <iostream>
+#include <cstring>
+#include <algorithm>
+#include <vector>
+
+#define MAX 101
+
+using namespace std;
+int R,C,K;
+int r = 3, c = 3;
+int arr[MAX][MAX];
+int copy_arr[MAX][MAX];
+int num_cnt[MAX];
+vector<pair<int, int>> v;
+
+bool cmp(pair<int, int> a, pair<int, int> b) {
+    if (a.second == b.second)
+        return a.first<b.first;
+    return a.second < b.second;
+}
+
+void copy(int src[MAX][MAX], int des[MAX][MAX]) {
+    for (int i = 1; i < MAX; i++) {
+        for (int j = 1; j < MAX; j++) {
+            des[i][j] = src[i][j];
+        }
+    }
+}
+
+void R_op() {
+    int size = 0;
+    for (int i = 1; i <= r;i++) {
+        memset(num_cnt, 0, sizeof(num_cnt));
+        v.clear();
+        for (int j = 1; j <= c; j++) {//각각의 수 갯수
+            if (arr[i][j] == 0)continue;
+            num_cnt[arr[i][j]]++;
+        }
+
+        for (int num = 1; num < MAX; num++) {
+            if (num_cnt[num] == 0)continue;
+            v.push_back(make_pair(num, num_cnt[num]));
+        }
+
+        if (size < v.size() * 2)
+            size = v.size() * 2;
+        sort(v.begin(), v.end(), cmp);
+        int idx = 0;
+        for (int j = 1; j <= v.size()*2; j+=2) {
+            copy_arr[i][j] = v[idx].first;
+            copy_arr[i][j + 1] = v[idx].second;
+            idx++;
+        }
+    }
+    copy(copy_arr, arr);
+    c = size;
+}
+
+void C_op() {
+    int size = 0;
+    for (int j = 1; j <= c; j++) {
+        memset(num_cnt, 0, sizeof(num_cnt));
+        v.clear();
+        for (int i = 1; i <= c; i++) {//각각의 수 갯수
+            if (arr[i][j] == 0)continue;
+            num_cnt[arr[i][j]]++;
+        }
+
+        for (int num = 1; num < MAX; num++) {
+            if (num_cnt[num] == 0)continue;
+            v.push_back(make_pair(num, num_cnt[num]));
+        }
+
+        if (size < v.size() * 2)
+            size = v.size() * 2;
+
+        sort(v.begin(), v.end(), cmp);
+        int idx = 0;
+        for (int i = 1; i <= v.size() * 2; i += 2) {
+            copy_arr[i][j] = v[idx].first;
+            copy_arr[i+1][j] = v[idx].second;
+            idx++;
+        }
+    }
+    copy(copy_arr, arr);
+    r = size;
+}
+
+int main(void)
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(NULL);
+    
+    cin >> R >> C >> K;
+    for (int i = 1; i <= 3; i++) {
+        for (int j = 1; j <= 3; j++) {
+            cin >> arr[i][j];
+        }
+    }
+    int time = 0;
+    while (arr[R][C] != K) {
+        if (time > 100) {
+            time = -1;
+            break;
+        }
+
+        memset(copy_arr, 0, sizeof(copy_arr));
+        v.clear();
+        if (r >= c)
+            R_op();
+        else
+            C_op();
+
+        time++;
+    }
+    cout << time;
+    return 0;
+}

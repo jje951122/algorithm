@@ -1,0 +1,61 @@
+//플로이드
+
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+
+
+using namespace std;
+const int INF = (int)1e9;
+int N, M;
+int arr[101][101];
+vector<int> store;
+
+
+int main() {
+	ios_base::sync_with_stdio(0);
+	cin.tie(0);
+
+	cin >> N >> M;
+	int a, b;
+	for (int i = 1; i <= N; i++) {
+		for (int j = 1; j <= N; j++) {
+			if (i == j)
+				arr[i][i] = 0;
+			else
+				arr[i][j] = INF;
+		}
+	}
+	for (int i = 0; i < M; i++) {
+		cin >> a >> b;
+		arr[a][b] = 1;
+		arr[b][a] = 1;
+	}
+	for (int k = 1; k <= N; k++) {
+		for (int i = 1; i <= N; i++) {
+			for (int j = 1; j <= N; j++) {
+				if (arr[i][k] == INF || arr[k][j] == INF)continue;
+				if (arr[i][j] > arr[i][k] + arr[k][j]) {
+					arr[i][j] = arr[i][k] + arr[k][j];
+				}
+			}
+		}
+	}
+  //같은 거리면 A가 작은순, A가 같다면 B가 작은순 -> 역순으로 가게조회로 해결
+	int MIN =a=b= INF;
+	for (int i = N-1; i >=1; i--) {//가게1
+		for (int j =N; j >=i+1; j--) {//가게2
+			int tmp = 0;
+			for (int k = 1; k <= N; k++) {//모든 집 순회계산
+				tmp += min(arr[i][k], arr[j][k]);
+			}
+			if (MIN >= tmp*2) {
+				a = i; b = j; MIN = tmp*2;
+			}
+		}
+	}
+	printf("%d %d %d", a, b, MIN);
+
+	return 0;
+}

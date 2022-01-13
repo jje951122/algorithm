@@ -1,0 +1,121 @@
+//bfs, 
+#include <iostream>
+#include <queue>
+#include <cstring>
+#include <algorithm>
+
+#define INF 987654321
+using namespace std;
+
+int N = 5;
+int dy[] = {1,0,-1,0,0,0};
+int dx[] = {0,1,0,-1,0,0};
+int dz[] = {0,0,0,0,1,-1};
+
+int ori[5][5][5];
+int map[5][5][5];
+bool visit[5][5][5];
+int seq[5] = {0,1,2,3,4};
+int MIN = INF;
+
+struct pos {
+	int y, x, z, dis;
+};
+
+void bfs() {
+	memset(visit, false, sizeof(visit));
+	visit[0][0][0] = true;
+	queue<pos> q;
+	q.push(pos{ 0,0,0,0 });
+
+	int x, y, z, ny, nx, nz, dis;
+	while (!q.empty()) {
+		y = q.front().y;
+		x = q.front().x;
+		z = q.front().z;
+		dis = q.front().dis;
+		q.pop();
+
+		if (y == N-1 && x == N-1 && z == N-1) {
+			MIN = min(MIN, dis);
+			if (MIN == 12) {
+				printf("12");
+				exit(0);
+			}
+			return;
+		}
+		for (int i = 0; i < 6; i++) {
+			ny = y + dy[i];
+			nx = x + dx[i];
+			nz = z + dz[i];
+			if (ny<0 || nx<0 || nz<0 || ny>=N || nx>=N || nz>=N)continue;
+			if (visit[nz][ny][nx] || map[nz][ny][nx] == 0)continue;
+			visit[nz][ny][nx] = true;
+			q.push(pos{ ny,nx,nz,dis + 1 });
+		}
+	}
+}
+void rot(int idx) {
+	int tmp[5][5];
+	for (int i = 0; i < N; i++) {
+		for (int j = 0; j < N; j++) {
+			tmp[j][4-i] = map[idx][i][j];
+		}
+	}
+	for (int i = 0; i < N; i++) {
+		for (int j = 0; j < N; j++) {
+			map[idx][i][j]= tmp[i][j] ;
+		}
+	}
+}
+void setting() {//쌓는 순서 -> rotate
+	do {
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < N; j++) {
+				for (int k = 0; k < N; k++) {
+					map[seq[i]][j][k] = ori[i][j][k];
+				}
+			}
+		}
+		for (int _0 = 0; _0 < 4; _0++) {
+			rot(0);
+			if (!map[0][0][0])continue;
+			for (int _1 = 0; _1 < 4; _1++) {
+				rot(1);
+				for (int _2 = 0; _2 < 4; _2++) {
+					rot(2);
+					for (int _3 = 0; _3 < 4; _3++) {
+						rot(3);
+						for (int _4 = 0; _4 < 4; _4++) {
+							rot(4);
+							if (map[4][4][4])
+								bfs();
+						}
+					}
+				}
+			}
+		}
+
+	} while (next_permutation(seq, seq + 5));
+}
+
+int main() {
+	ios_base::sync_with_stdio(0);
+	cin.tie(NULL);
+
+	for (int i = 0; i < N; i++) {
+		for (int j = 0; j < N; j++) {
+			for (int k = 0; k < N; k++) {
+				cin >> ori[i][j][k];
+			}
+		}
+	}
+	
+	setting();
+	if (MIN == INF)
+		cout << -1;
+	else
+		cout << MIN;
+    return 0;
+}
+    

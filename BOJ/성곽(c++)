@@ -1,0 +1,96 @@
+//bfs, 비트연산
+#include <iostream>
+#include <queue>
+#include <cmath>
+
+using namespace std;
+
+int N, M;
+int arr[101][101];
+int map[101][101];
+bool visit[101][101];
+vector<int> area_size;
+int x_dir[] = { -1,0,1,0 };
+int y_dir[] = { 0,-1,0,1 };
+
+int ans2 = 0;
+int ans1 = 0;
+int ans3 = 0;
+
+void question_3() {
+    int ny, nx;
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < M; j++) {
+            for (int d = 0; d < 4; d++) {
+                ny = i + y_dir[d];
+                nx = j+x_dir[d];
+                if (ny < 0 || nx < 0 || ny >= N || nx >= M)continue;
+                if (map[i][j] == map[ny][nx])continue;
+                if ((arr[i][j] & (1 << d)) != 0) {
+                    if (ans3 < (area_size[map[i][j]] + area_size[map[ny][nx]])) {
+                        ans3 = (area_size[map[i][j]] + area_size[map[ny][nx]]);
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+void question_1and2(int i, int j){
+    queue<pair<int, int>> q;
+    q.push(make_pair(i, j));
+    visit[i][j] = true;
+    
+    map[i][j] = ans1;
+    int cnt = 1;
+
+    int x, y, ny, nx;
+    while (!q.empty()) {
+        y = q.front().first;
+        x = q.front().second;
+        q.pop();
+
+        for (int d = 0; d < 4; d++) {
+            if ((arr[y][x] & (1<<d) ) != 0)continue;
+            ny = y + y_dir[d];
+            nx = x + x_dir[d];
+            if (ny < 0 || nx < 0 || ny >= N || nx >= M)continue;
+            if (visit[ny][nx])continue;
+            visit[ny][nx] = true;
+            map[ny][nx] = ans1;
+            q.push(make_pair(ny, nx));
+            cnt++;
+        }
+
+    }
+    ans1++;
+    area_size.push_back(cnt);
+    if (ans2 < cnt)
+        ans2 = cnt;
+}
+
+int main(void)
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(NULL);
+    
+    cin >>M>>N;
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < M; j++) {
+            cin >> arr[i][j];
+        }
+    }
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < M; j++) {
+            if (visit[i][j])continue;
+            question_1and2(i,j);
+        }
+    }
+    
+    cout << ans1<<endl;
+    cout << ans2 << endl;
+    question_3();
+    cout << ans3;
+    return 0;
+}

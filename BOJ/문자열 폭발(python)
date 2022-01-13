@@ -1,0 +1,18 @@
+#문자열
+# 한 문자씩 추가하면서 체크
+text=input()
+bomb=input()
+bomb_len=len(bomb)
+
+ans=[]
+for c in text:
+    ans+=c
+    if len(ans) >= bomb_len and ''.join(ans[-bomb_len:])==bomb:
+        print("test")
+        del ans[-bomb_len:]
+        
+answer=''.join(ans)
+if answer=="":
+    print("FRULA")
+else:
+    print(answer)

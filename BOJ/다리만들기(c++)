@@ -1,0 +1,107 @@
+//bfs
+#include <iostream>
+#include <cstring>
+#include <queue>
+
+using namespace std;
+int N;
+int arr[100][100];
+int area[100][100];
+bool visit[100][100];
+int y_dir[] = { 0,1,0,-1 };
+int x_dir[] = { 1,0,-1,0 };
+int ans = 987654321;
+int idx = 1;
+struct pos {
+    int y, x, dis;
+};
+bool isrange(int y, int x) {
+    if (y < 0 || x < 0 || y >= N || x >= N)return false;
+    return true;
+}
+void same_area(int i, int j) {//같은 땅인지 설정
+    queue<pair<int, int>> q;
+    q.push(make_pair(i, j));
+    area[i][j] = idx;
+
+    int y, x, ny, nx;
+    while (!q.empty()) {
+        y = q.front().first;
+        x = q.front().second;
+        q.pop();
+
+        for (int d = 0; d < 4; d++) {
+            ny = y + y_dir[d];
+            nx = x + x_dir[d];
+            if (!isrange(ny, nx))continue;
+            if (area[ny][nx]!=0)continue;
+            if (arr[ny][nx] == 0)continue;
+            area[ny][nx] = idx;
+            q.push(make_pair(ny, nx));
+        }
+    }
+    idx++;
+}
+
+void search_diff_area(int i, int j) {
+    memset(visit, false, sizeof(visit));
+    visit[i][j] = true;
+    int now_area = area[i][j];
+    queue<pos> q;
+    q.push(pos{ i,j,0 });
+
+    int y, x, ny, nx, dis;
+    while (!q.empty()) {
+        y = q.front().y;
+        x = q.front().x;
+        dis = q.front().dis;
+        q.pop();
+
+        if (arr[y][x] == 1 && area[y][x]!=now_area) {
+            if (ans > dis-1)
+                ans = dis-1;
+            return;
+        }
+
+        for (int d = 0; d < 4; d++) {
+            ny = y + y_dir[d];
+            nx = x + x_dir[d];
+            if (!isrange(ny, nx))continue;
+            if (area[ny][nx] == now_area)continue;
+            if (visit[ny][nx])continue;
+            visit[ny][nx] = true;
+            q.push(pos{ ny,nx,dis + 1 });
+        }
+    }
+}
+
+int main(void)
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(NULL);
+    cin >> N ;
+
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            cin >> arr[i][j];
+        }
+    }
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            if (arr[i][j] == 0)continue;
+            if (area[i][j]==0) {
+                same_area(i, j);
+            }
+        }
+    }
+
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            if (arr[i][j] == 0)continue;
+            search_diff_area(i, j);
+        }
+    }
+
+    cout << ans;
+    return 0;
+}
