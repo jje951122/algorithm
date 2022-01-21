@@ -3,7 +3,6 @@ class Solution {
         int answer = 0;
         String convertNum = convertKbinary(n, k);
 
-        StringBuilder num = new StringBuilder();
         int j = 0;
         for (int i = 0; i < convertNum.length() - 1; i = j) {
             for (j = i + 1; j < convertNum.length() && convertNum.charAt(j) != '0'; j++) ;
