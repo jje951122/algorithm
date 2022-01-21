@@ -1,7 +1,7 @@
 import java.util.*;
 
-public class Main {
-    static long MAX = 987654321;
+class Solution {
+    static long MAX = 0;
     static List<Long> numList = new ArrayList<>();
     static List<Character> optList = new ArrayList<>();
     static List<Character> optKind = new ArrayList<>();
@@ -80,5 +80,4 @@ public class Main {
         optKind = new ArrayList<>(optSet);
 
     }
-
 }
