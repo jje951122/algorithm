@@ -5,7 +5,6 @@ class Solution {
     static ArrayList<Integer>[] childs;
     static int[] Info;
     static int maxSheepCnt = 0;
-    static boolean[] visit;
 
     public static int solution(int[] info, int[][] edges) {
         Info = info;
@@ -19,7 +18,6 @@ class Solution {
             childs[parent].add(child);
         }
 
-        visit = new boolean[info.length];
         List<Integer> list = new ArrayList<>();
         list.add(0);
         dfs(0, 0, 0, list);
@@ -27,15 +25,13 @@ class Solution {
     }
 
     private static void dfs(int idx, int sheepCnt, int wolfCnt, List<Integer> nextPos) {
-        // 이전에 방문한 적이 없다면 늑대/양 수, 양의 최대값 최신화
-        if (!visit[idx]) {
-            if (Info[idx] == 0) sheepCnt++;
-            else wolfCnt++;
+        // 늑대/양 수, 양의 최대값 최신화
+        if (Info[idx] == 0) sheepCnt++;
+        else wolfCnt++;
 
-            if (wolfCnt >= sheepCnt) return;
-            visit[idx] = true;
-            maxSheepCnt = Math.max(sheepCnt, maxSheepCnt);
-        }
+        if (wolfCnt >= sheepCnt) return;
+        maxSheepCnt = Math.max(sheepCnt, maxSheepCnt);
+
         // 다음 탐색 위치 갱신
         List<Integer> list = new ArrayList<>();
         list.addAll(nextPos);
@@ -50,7 +46,6 @@ class Solution {
         for (int next : list) {
             dfs(next, sheepCnt, wolfCnt, list);
         }
-        visit[idx] = false;
     }
 
 }
